@@ -4,6 +4,7 @@ import { ServerStackIcon, BoltIcon, CloudArrowDownIcon } from '../Icons.tsx';
 import DeploymentManager from '../hosting/DeploymentManager.tsx';
 import VisualAutomator from '../hosting/VisualAutomator.tsx';
 import ServerControlPanel from '../hosting/ServerControlPanel.tsx';
+import PyPingChatbot from '../hosting/PyPingChatbot.tsx';
 
 type HostTab = 'deploy' | 'automate' | 'manage';
 
@@ -11,10 +12,12 @@ const HostPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<HostTab>('manage');
 
     return (
-        <div className="animate-fade-in-up h-[calc(100vh-100px)] flex flex-col">
+        <div className="animate-fade-in-up h-[calc(100vh-100px)] flex flex-col relative">
+            <PyPingChatbot />
+            
             <div className="mb-8 text-center shrink-0">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-2">Host & Build</h1>
-                <p className="text-lg text-slate-400">Self-hosted infrastructure, CI/CD pipelines, and workflow automation.</p>
+                <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-2">PyCom Cloud Host</h1>
+                <p className="text-lg text-slate-400">Open-Source, AI-Powered Cloud Infrastructure & CI/CD.</p>
             </div>
 
             <div className="bg-slate-950 rounded-2xl border border-slate-800 flex flex-col flex-grow overflow-hidden shadow-2xl">

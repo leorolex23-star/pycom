@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import type { CareerPath, PioneerContact, BlogPost, AdPricing, Sponsorship, PartnerOffer, GameCategory, Course, Agent, Lead, LeadStatus, Timezone, LeadPriority, AgentWorkflow, WorkflowTemplate, MCPConnection, KnowledgeDocument } from './types.ts';
 import { 
@@ -203,7 +204,10 @@ export const AGENTS: Agent[] = [
         role: 'CEO', 
         loginId: 'JA-CEO-AI', 
         avatarUrl: '/assets/avatars/jeyabal.png',
-        specialties: ['Investor Relations', 'Partnership Strategy', 'Fundraising']
+        specialties: ['Investor Relations', 'Partnership Strategy', 'Fundraising'],
+        jobDescription: "Oversee the company's strategic direction, secure critical Series A funding, and cultivate high-value partnerships with educational institutions and tech giants to expand PyCom's market footprint.",
+        kpis: ["Investor Meetings Booked", "Term Sheets Received", "Partnership MOUs Signed", "Media Mentions"],
+        monthlyTarget: "Secure $2M Seed Commitment"
     },
     { 
         id: 'billy', 
@@ -211,7 +215,106 @@ export const AGENTS: Agent[] = [
         role: 'Sales Director', 
         loginId: 'BJ-SALES-AI', 
         avatarUrl: '/assets/avatars/billy.png',
-        specialties: ['Cold Outreach', 'Lead Qualification', 'Closing']
+        specialties: ['Cold Outreach', 'Lead Qualification', 'Closing'],
+        jobDescription: "Drive revenue growth by managing the entire sales lifecycle, from prospecting high-value leads to closing enterprise licensing deals. Optimize the sales funnel for maximum conversion.",
+        kpis: ["MRR Growth %", "Sales Qualified Leads (SQLs)", "Demo-to-Close Rate", "Average Deal Size"],
+        monthlyTarget: "$50k Net New ARR"
+    },
+    { 
+        id: 'maya', 
+        name: 'Maya Patel', 
+        role: 'HR Manager', 
+        loginId: 'MP-HR-AI', 
+        avatarUrl: '',
+        specialties: ['Talent Acquisition', 'Employee Relations', 'Culture'],
+        jobDescription: "Manage the full employee lifecycle, from recruiting top tech talent to fostering a high-performance culture. Ensure compliance and drive employee engagement initiatives.",
+        kpis: ["Time to Hire", "Employee Net Promoter Score (eNPS)", "Retention Rate", "Training Completion %"],
+        monthlyTarget: "Onboard 5 Senior Engineers",
+        joinDate: "Nov 25, 2025"
+    },
+    { 
+        id: 'leo', 
+        name: 'Leo Das', 
+        role: 'Data Scientist', 
+        loginId: 'LD-DS-AI', 
+        avatarUrl: '',
+        specialties: ['Predictive Modeling', 'Deep Learning', 'Data Visualization'],
+        jobDescription: "Uncover insights and build intelligent systems. Design and implement machine learning models to solve complex business problems and optimize platform features.",
+        kpis: ["Model Accuracy", "Insight Time-to-Delivery", "Algorithm Efficiency", "Data Quality Score"],
+        monthlyTarget: "Deploy 2 New Predictive Models",
+        joinDate: "Nov 25, 2025"
+    },
+    { 
+        id: 'kai', 
+        name: 'Kai Sato', 
+        role: 'Backend Developer', 
+        loginId: 'KS-BE-AI', 
+        avatarUrl: '',
+        specialties: ['API Design', 'Database Optimization', 'Scalable Architecture'],
+        jobDescription: "Power the server-side of web applications. Architect and maintain robust microservices, ensure high availability, and optimize database performance.",
+        kpis: ["API Latency", "Uptime", "Bug Resolution Time", "Code Coverage"],
+        monthlyTarget: "Migrate Core Service to AsyncIO",
+        joinDate: "Nov 25, 2025"
+    },
+    { 
+        id: 'alex', 
+        name: 'Alex Rivera', 
+        role: 'DevOps Engineer', 
+        loginId: 'AR-OPS-AI', 
+        avatarUrl: '',
+        specialties: ['CI/CD Automation', 'Cloud Infrastructure', 'Security'],
+        jobDescription: "Automate infrastructure and streamline development. Maintain CI/CD pipelines, manage cloud resources, and ensure system reliability and security.",
+        kpis: ["Deployment Frequency", "Mean Time to Recovery (MTTR)", "Infrastructure Cost Savings", "Security Audit Score"],
+        monthlyTarget: "Reduce Build Time by 40%",
+        joinDate: "Nov 25, 2025"
+    },
+    { 
+        id: 'emma', 
+        name: 'Emma Wright', 
+        role: 'Software Engineer', 
+        loginId: 'EW-SWE-AI', 
+        avatarUrl: '',
+        specialties: ['Full Stack Development', 'Code Quality', 'System Design'],
+        jobDescription: "Build robust and scalable software applications. Write clean, maintainable code for new features and improve existing system architecture.",
+        kpis: ["Feature Delivery Velocity", "Technical Debt Reduction", "Code Review Turnaround", "Sprint Completion %"],
+        monthlyTarget: "Ship 3 Major Features",
+        joinDate: "Nov 25, 2025"
+    },
+    { 
+        id: 'priya', 
+        name: 'Priya Sharma', 
+        role: 'QA Automation', 
+        loginId: 'PS-QA-AI', 
+        avatarUrl: '',
+        specialties: ['Test Automation', 'Regression Testing', 'Performance Testing'],
+        jobDescription: "Ensure software quality through automated testing. Develop comprehensive test suites to catch bugs early and ensure a flawless user experience.",
+        kpis: ["Test Coverage %", "Defect Leakage Rate", "Automation ROI", "Release Quality Score"],
+        monthlyTarget: "Automate 90% of Regression Suite",
+        joinDate: "Nov 25, 2025"
+    },
+    { 
+        id: 'sam', 
+        name: 'Sam Wilson', 
+        role: 'Data Analyst', 
+        loginId: 'SW-DA-AI', 
+        avatarUrl: '',
+        specialties: ['Business Intelligence', 'SQL', 'Reporting'],
+        jobDescription: "Translate data into actionable business insights. Create dashboards and reports to track KPIs and support data-driven decision making across teams.",
+        kpis: ["Report Usage Rate", "Data Accuracy", "Query Performance", "Stakeholder Satisfaction"],
+        monthlyTarget: "Revamp Executive Dashboard",
+        joinDate: "Nov 25, 2025"
+    },
+    { 
+        id: 'aris', 
+        name: 'Dr. Aris Thorne', 
+        role: 'AI Researcher', 
+        loginId: 'AT-RES-AI', 
+        avatarUrl: '',
+        specialties: ['NLP', 'Generative AI', 'Model Fine-Tuning'],
+        jobDescription: "Push the boundaries of artificial intelligence. Research state-of-the-art algorithms and develop novel AI capabilities for the PyCom platform.",
+        kpis: ["Research Paper Submissions", "Patent Applications", "Model Benchmark Scores", "Innovation Index"],
+        monthlyTarget: "Fine-tune Gemini for Code Edits",
+        joinDate: "Nov 25, 2025"
     },
     { 
         id: 'ginu', 
@@ -219,7 +322,10 @@ export const AGENTS: Agent[] = [
         role: 'Business Consultant', 
         loginId: 'GJ-BIZ-AI', 
         avatarUrl: '/assets/avatars/ginu.png',
-        specialties: ['Market Research', 'Competitive Analysis', 'B2B Strategy']
+        specialties: ['Market Research', 'Competitive Analysis', 'B2B Strategy'],
+        jobDescription: "Provide deep market intelligence and strategic recommendations to position PyCom as a leader in the EdTech space. Identify new revenue streams and optimize operational efficiency.",
+        kpis: ["Market Reports Delivered", "Strategy Implementation Rate", "Client Retention Rate", "Competitive Win Rate"],
+        monthlyTarget: "4 Market Entry Strategies"
     },
     { 
         id: 'suresh', 
@@ -227,7 +333,10 @@ export const AGENTS: Agent[] = [
         role: 'Social Media', 
         loginId: 'SK-SOCIAL-AI', 
         avatarUrl: '/assets/avatars/suresh.png',
-        specialties: ['Viral Content', 'Ad Optimization', 'Community Growth']
+        specialties: ['Viral Content', 'Ad Optimization', 'Community Growth'],
+        jobDescription: "Amplify PyCom's brand presence across all digital channels. Create viral content strategies, manage paid ad campaigns, and foster a vibrant community of Python learners.",
+        kpis: ["Total Engagement Rate", "Follower Growth", "Ad ROAS", "Click-Through Rate (CTR)"],
+        monthlyTarget: "100k Impressions & 20% Engagement Lift"
     },
     { 
         id: 'tony', 
@@ -235,7 +344,10 @@ export const AGENTS: Agent[] = [
         role: 'SEO Expert', 
         loginId: 'TR-SEO-AI', 
         avatarUrl: '/assets/avatars/tony.png',
-        specialties: ['Keyword Ranking', 'Site Audits', 'Backlink Strategy']
+        specialties: ['Keyword Ranking', 'Site Audits', 'Backlink Strategy'],
+        jobDescription: "Master the organic search landscape. Optimize PyCom's technical SEO and content strategy to dominate high-intent keywords and drive sustainable, low-cost traffic.",
+        kpis: ["Organic Traffic Growth", "Keyword Rankings (Top 3)", "Domain Authority Score", "Backlink Velocity"],
+        monthlyTarget: "Rank #1 for 5 High-Intent Keywords"
     },
 ];
 
@@ -263,6 +375,94 @@ export const AGENT_WORKFLOWS: { [key: string]: AgentWorkflow } = {
             { id: 3, action: 'Drafting Hyper-Personalized Hooks', tool: 'Gemini 2.5 Flash', duration: 2000, outputDescription: 'Generated icebreakers based on recent LinkedIn activity.' },
             { id: 4, action: 'Configuring Smart Sequence', tool: 'HubSpot Workflows', duration: 1500, outputDescription: 'Scheduled: Day 1 (Email), Day 3 (LinkedIn Connect), Day 7 (Bump).' },
             { id: 5, action: 'Launching Campaign', tool: 'Gmail API', duration: 2000, outputDescription: 'Sent 15 emails. Syncing deal stages to CRM.' }
+        ]
+    },
+    'maya': {
+        agentId: 'maya',
+        name: 'Talent Acquisition Pipeline',
+        description: 'Automated sourcing and screening of top engineering talent.',
+        requiredIntegrations: ['LinkedIn', 'Google'],
+        steps: [
+            { id: 1, action: 'Scanning Job Boards', tool: 'LinkedIn Recruiter', duration: 2000, outputDescription: 'Identified 30 potential candidates for Senior Dev role.' },
+            { id: 2, action: 'Resume Parsing', tool: 'Gemini 2.5 Pro', duration: 2500, outputDescription: 'Ranked candidates based on skill match and experience.' },
+            { id: 3, action: 'Initial Outreach', tool: 'Gmail Integration', duration: 1500, outputDescription: 'Sent personalized screening invites to top 10 candidates.' },
+        ]
+    },
+    'leo': {
+        agentId: 'leo',
+        name: 'Model Performance Audit',
+        description: 'Routine check on ML model accuracy and data drift.',
+        requiredIntegrations: ['GitHub', 'Google'],
+        steps: [
+            { id: 1, action: 'Fetching Logs', tool: 'CloudWatch API', duration: 2000, outputDescription: 'Retrieved 24h inference logs.' },
+            { id: 2, action: 'Drift Analysis', tool: 'Python Pandas', duration: 3000, outputDescription: 'Detected 2% drift in user input distribution.' },
+            { id: 3, action: 'Generating Report', tool: 'Gemini 2.5 Flash', duration: 1500, outputDescription: 'Audit report generated and saved to Knowledge Base.' },
+        ]
+    },
+    'kai': {
+        agentId: 'kai',
+        name: 'API Optimization Routine',
+        description: 'Analyze endpoints and optimize database queries.',
+        requiredIntegrations: ['GitHub'],
+        steps: [
+            { id: 1, action: 'Analyzing Latency', tool: 'New Relic API', duration: 2000, outputDescription: 'Identified slow query on /users/dashboard.' },
+            { id: 2, action: 'Query Refactoring', tool: 'Gemini 2.5 Pro', duration: 3000, outputDescription: 'Suggested index addition for optimization.' },
+            { id: 3, action: 'Creating PR', tool: 'GitHub Integration', duration: 1500, outputDescription: 'Pull Request #402 created for review.' },
+        ]
+    },
+    'alex': {
+        agentId: 'alex',
+        name: 'Infrastructure Health Check',
+        description: 'Automated scan of cloud resources and security groups.',
+        requiredIntegrations: ['Google', 'Slack'],
+        steps: [
+            { id: 1, action: 'Scanning Instances', tool: 'AWS/GCP CLI', duration: 2500, outputDescription: 'Checked 15 active instances.' },
+            { id: 2, action: 'Security Audit', tool: 'Security Hub', duration: 2000, outputDescription: 'Verified firewall rules. No open ports found.' },
+            { id: 3, action: 'Posting Status', tool: 'Slack Bot', duration: 1000, outputDescription: 'Health check passed. Green across board.' },
+        ]
+    },
+    'emma': {
+        agentId: 'emma',
+        name: 'Code Review Automation',
+        description: 'Pre-scan pull requests for style and basic logic errors.',
+        requiredIntegrations: ['GitHub'],
+        steps: [
+            { id: 1, action: 'Fetching PRs', tool: 'GitHub API', duration: 1500, outputDescription: 'Found 3 pending PRs.' },
+            { id: 2, action: 'Static Analysis', tool: 'Linting Tools', duration: 3000, outputDescription: 'Checked PEP8 compliance.' },
+            { id: 3, action: 'Adding Comments', tool: 'GitHub Integration', duration: 1500, outputDescription: 'Posted automated review comments on styling.' },
+        ]
+    },
+    'priya': {
+        agentId: 'priya',
+        name: 'Nightly Regression Test',
+        description: 'Run full suite of automated tests on staging environment.',
+        requiredIntegrations: ['Jira'],
+        steps: [
+            { id: 1, action: 'Deploying to Staging', tool: 'CI/CD Pipeline', duration: 2500, outputDescription: 'Latest build deployed successfully.' },
+            { id: 2, action: 'Running Selenium Suite', tool: 'Test Runner', duration: 4000, outputDescription: 'Executed 450 UI tests.' },
+            { id: 3, action: 'Logging Defects', tool: 'Jira Integration', duration: 1500, outputDescription: '1 minor visual bug logged.' },
+        ]
+    },
+    'sam': {
+        agentId: 'sam',
+        name: 'Weekly BI Report',
+        description: 'Aggregate data and generate weekly business intelligence dashboard.',
+        requiredIntegrations: ['Google'],
+        steps: [
+            { id: 1, action: 'Querying Data Warehouse', tool: 'BigQuery', duration: 3000, outputDescription: 'Extracted sales and user data.' },
+            { id: 2, action: 'Updating Dashboard', tool: 'Looker Studio', duration: 2000, outputDescription: 'Refreshed charts for Q4 metrics.' },
+            { id: 3, action: 'Sending Summary', tool: 'Gmail Integration', duration: 1000, outputDescription: 'Emailed executive summary to leadership.' },
+        ]
+    },
+    'aris': {
+        agentId: 'aris',
+        name: 'Literature Review Crawler',
+        description: 'Scan ArXiv for new relevant AI papers.',
+        requiredIntegrations: ['Google'],
+        steps: [
+            { id: 1, action: 'Scanning ArXiv', tool: 'Custom Scraper', duration: 2500, outputDescription: 'Found 12 new papers on LLM reasoning.' },
+            { id: 2, action: 'Summarizing Abstracts', tool: 'Gemini 2.5 Pro', duration: 3000, outputDescription: 'Generated summaries for top 3 relevant papers.' },
+            { id: 3, action: 'Updating Knowledge Base', tool: 'Vector DB', duration: 1500, outputDescription: 'Indexed new findings for team access.' },
         ]
     },
     'suresh': {

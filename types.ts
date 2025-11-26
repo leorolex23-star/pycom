@@ -1,6 +1,6 @@
 
 
-export type Page = 'home' | 'careers' | 'gamezone' | 'lab' | 'sourcekit' | 'courses' | 'contact' | 'blog' | 'advertise' | 'agentic-ai' | 'resources' | 'partner' | 'aiml' | 'invest' | 'host';
+export type Page = 'home' | 'careers' | 'gamezone' | 'lab' | 'sourcekit' | 'courses' | 'contact' | 'blog' | 'advertise' | 'agentic-ai' | 'resources' | 'partner' | 'aiml' | 'invest' | 'host' | 'docs';
 
 export interface PageNavigationProps {
   setActivePage: (page: Page) => void;
@@ -118,7 +118,20 @@ export interface GameCategory {
 }
 
 // Agentic AI Types
-export type AgentRole = 'CEO' | 'Sales Director' | 'Social Media' | 'SEO Expert' | 'Business Consultant';
+export type AgentRole = 
+  | 'CEO' 
+  | 'Sales Director' 
+  | 'Social Media' 
+  | 'SEO Expert' 
+  | 'Business Consultant'
+  | 'HR Manager'
+  | 'Data Scientist'
+  | 'Backend Developer'
+  | 'DevOps Engineer'
+  | 'Software Engineer'
+  | 'QA Automation'
+  | 'Data Analyst'
+  | 'AI Researcher';
 
 export interface Agent {
   id: string;
@@ -127,9 +140,10 @@ export interface Agent {
   loginId: string;
   avatarUrl: string;
   specialties: string[];
-  kpis?: string[];
-  jobDescription?: string;
-  monthlyTarget?: string;
+  jobDescription: string;
+  kpis: string[];
+  monthlyTarget: string;
+  joinDate?: string;
 }
 
 export interface WorkflowStep {
@@ -145,7 +159,7 @@ export interface AgentWorkflow {
     name: string;
     description: string;
     steps: WorkflowStep[];
-    requiredIntegrations: ('Google' | 'Microsoft' | 'HubSpot' | 'LinkedIn')[];
+    requiredIntegrations: ('Google' | 'Microsoft' | 'HubSpot' | 'LinkedIn' | 'GitHub' | 'Slack' | 'Jira' | 'Stripe' | 'Salesforce' | 'Zendesk' | 'Shopify')[];
 }
 
 export interface ActivityLog {
@@ -274,6 +288,20 @@ export interface Deployment {
     commitMessage: string;
 }
 
+export interface ServerMetrics {
+    cpu: number; // Percentage 0-100
+    ram: number; // Percentage 0-100
+    diskIo: number; // MB/s
+}
+
+export interface ServerService {
+    id: string;
+    name: string;
+    type: 'vector-db' | 'database' | 'cache';
+    status: 'running' | 'stopped';
+    port: number;
+}
+
 export interface ServerInstance {
     id: string;
     name: string;
@@ -282,6 +310,8 @@ export interface ServerInstance {
     status: 'running' | 'stopped' | 'provisioning';
     region: string;
     mcpEnabled: boolean;
+    metrics?: ServerMetrics;
+    installedServices?: ServerService[];
 }
 
 // Big Data Types
@@ -300,3 +330,5 @@ export interface BigDataQuery {
     result: any[];
     chartType: 'bar' | 'line' | 'pie';
 }
+
+export type VectorStoreType = 'Milvus' | 'Qdrant' | 'Weaviate' | 'FAISS' | 'Pinecone' | 'PyCom Native';

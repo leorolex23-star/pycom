@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 // Fix: Add .tsx extension to module paths
 import HomePage from './components/pages/HomePage.tsx';
@@ -16,6 +17,7 @@ import PartnerPage from './components/pages/PartnerPage.tsx';
 import AIMLPage from './components/pages/AIMLPage.tsx';
 import InvestPage from './components/pages/InvestPage.tsx'; // Import InvestPage
 import HostPage from './components/pages/HostPage.tsx';
+import DocsPage from './components/pages/DocsPage.tsx';
 import AuthModal from './components/AuthModal.tsx';
 import PromotionalBanner from './components/PromotionalBanner.tsx';
 import AILabBanner from './components/AILabBanner.tsx';
@@ -61,6 +63,7 @@ const App: React.FC = () => {
             case 'aiml': return <AIMLPage {...pageProps} />;
             case 'invest': return <InvestPage {...pageProps} />;
             case 'host': return <HostPage />;
+            case 'docs': return <DocsPage />;
             default: return <HomePage {...pageProps} />;
         }
     };
@@ -82,6 +85,7 @@ const App: React.FC = () => {
                         <NavLinkWithTooltip page="lab" tooltip="Use AI tools">AI Lab</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="agentic-ai" tooltip="Automated Business Agents">Agentic AI</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="host" tooltip="Self-Hosting & Automation">Host</NavLinkWithTooltip>
+                        <NavLinkWithTooltip page="docs" tooltip="Documentation & Guides">Docs</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="sourcekit" tooltip="Get dev resources">SourceKit</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="courses" tooltip="View our courses">Courses</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="blog" tooltip="Read our articles">Blog</NavLinkWithTooltip>
@@ -98,6 +102,7 @@ const App: React.FC = () => {
                      <button onClick={() => setActivePage('lab')} className="text-sm text-slate-300 whitespace-nowrap">AI Lab</button>
                      <button onClick={() => setActivePage('agentic-ai')} className="text-sm text-slate-300 whitespace-nowrap">Agentic AI</button>
                      <button onClick={() => setActivePage('host')} className="text-sm text-slate-300 whitespace-nowrap">Host</button>
+                     <button onClick={() => setActivePage('docs')} className="text-sm text-slate-300 whitespace-nowrap">Docs</button>
                      <button onClick={() => setActivePage('invest')} className="text-sm text-yellow-400 whitespace-nowrap">Invest</button>
                 </div>
             </header>

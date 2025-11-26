@@ -1,7 +1,9 @@
 
+
 import React, { useState } from 'react';
 import { KNOWLEDGE_DOCS } from '../../constants.ts';
-import { DatabaseIcon, DocumentTextIcon, CloudArrowDownIcon, PlusIcon, CheckCircleIcon, ArrowPathIcon, ClockIcon, DownloadIcon, UploadIcon, SparklesIcon } from '../Icons.tsx';
+import type { VectorStoreType } from '../../types.ts';
+import { DatabaseIcon, DocumentTextIcon, CloudArrowDownIcon, PlusIcon, CheckCircleIcon, ArrowPathIcon, ClockIcon, DownloadIcon, UploadIcon, SparklesIcon, CogIcon, ServerStackIcon } from '../Icons.tsx';
 
 const KnowledgeBase: React.FC = () => {
     const [docs, setDocs] = useState(KNOWLEDGE_DOCS);
@@ -9,6 +11,8 @@ const KnowledgeBase: React.FC = () => {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
     const [isSynthesizing, setIsSynthesizing] = useState(false);
+    const [vectorBackend, setVectorBackend] = useState<VectorStoreType>('PyCom Native');
+    const [showBackendSettings, setShowBackendSettings] = useState(false);
 
     const handleDownload = (docName: string) => {
         // Simulate download
@@ -57,7 +61,7 @@ const KnowledgeBase: React.FC = () => {
         // Simulate synthesis process
         setTimeout(() => {
             setIsSynthesizing(false);
-            const reportContent = `# AI Synthesis Report\n\nBased on ${selectedDocs.length} documents analyzed:\n\n## Executive Summary\nThis report synthesizes key findings from the selected knowledge base assets. Trends indicate strong growth in Q1 with increasing technical debt in legacy systems.\n\n## Key Insights\n- Revenue up 15% (Source: CSV)\n- Brand consistency improved (Source: PDF)\n\n## Recommendations\nFocus on optimizing database queries and expanding the sales pipeline.`;
+            const reportContent = `# AI Synthesis Report\n\nBased on ${selectedDocs.length} documents analyzed using **${vectorBackend}**:\n\n## Executive Summary\nThis report synthesizes key findings from the selected knowledge base assets. Trends indicate strong growth in Q1 with increasing technical debt in legacy systems.\n\n## Key Insights\n- Revenue up 15% (Source: CSV)\n- Brand consistency improved (Source: PDF)\n\n## Recommendations\nFocus on optimizing database queries and expanding the sales pipeline.`;
             
             const blob = new Blob([reportContent], { type: 'text/markdown' });
             const url = URL.createObjectURL(blob);
@@ -90,14 +94,56 @@ const KnowledgeBase: React.FC = () => {
     };
 
     return (
-        <div className="h-full bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex flex-col">
+        <div className="h-full bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex flex-col relative">
+            {/* Backend Settings Modal */}
+            {showBackendSettings && (
+                <div className="absolute inset-0 bg-black/90 z-20 flex items-center justify-center p-6 animate-fade-in-up">
+                    <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-md">
+                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <ServerStackIcon className="w-5 h-5 text-purple-400" />
+                            Configure Vector Backend
+                        </h3>
+                        <p className="text-slate-400 text-sm mb-6">Select a vector database provider. Self-hosted options are free but require a running container on your PyCom Server.</p>
+                        
+                        <div className="space-y-2">
+                            {(['PyCom Native', 'Milvus', 'Qdrant', 'Weaviate', 'FAISS', 'Pinecone'] as VectorStoreType[]).map(backend => (
+                                <button 
+                                    key={backend}
+                                    onClick={() => setVectorBackend(backend)}
+                                    className={`w-full text-left p-3 rounded-lg flex justify-between items-center transition-colors ${
+                                        vectorBackend === backend 
+                                        ? 'bg-purple-600/20 border border-purple-500 text-white' 
+                                        : 'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700'
+                                    }`}
+                                >
+                                    <span>{backend}</span>
+                                    {vectorBackend === backend && <CheckCircleIcon className="w-4 h-4 text-purple-400" />}
+                                    {(backend === 'Milvus' || backend === 'Qdrant' || backend === 'FAISS') && (
+                                        <span className="text-[10px] bg-green-900/30 text-green-400 px-2 py-0.5 rounded uppercase font-bold">Free / Self-Hosted</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                        
+                        <button onClick={() => setShowBackendSettings(false)} className="w-full mt-6 bg-purple-600 text-white font-bold py-2 rounded-lg hover:bg-purple-700">
+                            Save Configuration
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <div className="bg-slate-900 p-6 border-b border-slate-800 flex justify-between items-center shrink-0">
                 <div>
                     <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                         <DatabaseIcon className="w-7 h-7 text-purple-500" />
                         Knowledge Base
                     </h2>
-                    <p className="text-slate-400 text-sm mt-1">RAG (Retrieval-Augmented Generation) Context Store</p>
+                    <p className="text-slate-400 text-sm mt-1 flex items-center gap-2">
+                        Backend: <span className="text-purple-300 font-semibold">{vectorBackend}</span>
+                        <button onClick={() => setShowBackendSettings(true)} className="text-slate-500 hover:text-white">
+                            <CogIcon className="w-4 h-4" />
+                        </button>
+                    </p>
                 </div>
                 <div className="flex gap-3">
                     {selectedDocs.length > 0 && (
@@ -174,7 +220,7 @@ const KnowledgeBase: React.FC = () => {
             
             <div className="bg-slate-900 p-4 border-t border-slate-800 text-center text-xs text-slate-500 shrink-0 flex justify-between px-8">
                 <span>Vector Store Usage: 45MB / 1GB</span>
-                <span>Last Sync: Just now</span>
+                <span>Active Backend: {vectorBackend}</span>
             </div>
         </div>
     );
