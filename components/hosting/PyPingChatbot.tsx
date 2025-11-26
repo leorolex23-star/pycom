@@ -36,31 +36,32 @@ const PyPingChatbot: React.FC = () => {
 
         try {
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const model = ai.models.getGenerativeModel({ 
+            
+            const result = await ai.models.generateContent({
                 model: 'gemini-2.5-flash',
-                systemInstruction: `You are PyPing, an advanced AI DevOps Engineer for the PyCom Cloud Platform.
-                
-                YOUR CAPABILITIES:
-                - Server Management (Linux/Ubuntu, Nginx, Systemd)
-                - Containerization (Docker, Kubernetes)
-                - Python Deployment (Gunicorn, Uvicorn, Supervisor)
-                - Security (Firewalls, SSL, SSH Hardening)
-                
-                CONTEXT:
-                - The user is the SOLE OWNER and ROOT ADMIN of this infrastructure.
-                - You have full permission to generate deletion scripts or destructive commands if requested (with a warning).
-                - Provide concrete terminal commands and configuration snippets.
-                
-                TONE: Technical, precise, slightly robotic but helpful. Like a futuristic terminal interface.`
-            });
-
-            const result = await model.generateContent({
-                contents: messages.map(m => ({ role: m.role, parts: [{ text: m.text }] })).concat([{ role: 'user', parts: [{ text: userMsg }] }])
+                contents: messages.map(m => ({ role: m.role, parts: [{ text: m.text }] })).concat([{ role: 'user', parts: [{ text: userMsg }] }]),
+                config: {
+                    systemInstruction: `You are PyPing, an advanced AI DevOps Engineer for the PyCom Cloud Platform.
+                    
+                    YOUR CAPABILITIES:
+                    - Server Management (Linux/Ubuntu, Nginx, Systemd)
+                    - Containerization (Docker, Kubernetes)
+                    - Python Deployment (Gunicorn, Uvicorn, Supervisor)
+                    - Security (Firewalls, SSL, SSH Hardening)
+                    
+                    CONTEXT:
+                    - The user is the SOLE OWNER and ROOT ADMIN of this infrastructure.
+                    - You have full permission to generate deletion scripts or destructive commands if requested (with a warning).
+                    - Provide concrete terminal commands and configuration snippets.
+                    
+                    TONE: Technical, precise, slightly robotic but helpful. Like a futuristic terminal interface.`
+                }
             });
             
-            const responseText = result.response.text();
+            const responseText = result.text || "Command processing failed.";
             setMessages(prev => [...prev, { role: 'model', text: responseText }]);
         } catch (error) {
+            console.error(error);
             setMessages(prev => [...prev, { role: 'model', text: "Connection to PyPing Core failed. Please retry." }]);
         } finally {
             setIsLoading(false);

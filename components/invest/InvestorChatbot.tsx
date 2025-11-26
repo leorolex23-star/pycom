@@ -36,26 +36,27 @@ const InvestorChatbot: React.FC = () => {
 
         try {
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const model = ai.models.getGenerativeModel({ 
+            
+            const result = await ai.models.generateContent({
                 model: 'gemini-2.5-flash',
-                systemInstruction: `You are the Investor Relations Officer for PyCom, an AI-powered EdTech platform.
-                
-                KEY FACTS:
-                - Mission: Democratize Python & AI education.
-                - Traction: 10k+ Monthly Active Users, 500k+ code executions.
-                - Revenue Model: Freemium (Courses, Advanced AI Tools), B2B Licensing, Recruitment referrals.
-                - Funding Goal: $2M Seed Round for infrastructure scaling and model fine-tuning.
-                
-                TONE: Professional, data-driven, yet visionary and confident. Keep answers concise.`
-            });
-
-            const result = await model.generateContent({
-                contents: messages.map(m => ({ role: m.role, parts: [{ text: m.text }] })).concat([{ role: 'user', parts: [{ text: userMsg }] }])
+                contents: messages.map(m => ({ role: m.role, parts: [{ text: m.text }] })).concat([{ role: 'user', parts: [{ text: userMsg }] }]),
+                config: {
+                    systemInstruction: `You are the Investor Relations Officer for PyCom, an AI-powered EdTech platform.
+                    
+                    KEY FACTS:
+                    - Mission: Democratize Python & AI education.
+                    - Traction: 10k+ Monthly Active Users, 500k+ code executions.
+                    - Revenue Model: Freemium (Courses, Advanced AI Tools), B2B Licensing, Recruitment referrals.
+                    - Funding Goal: $2M Seed Round for infrastructure scaling and model fine-tuning.
+                    
+                    TONE: Professional, data-driven, yet visionary and confident. Keep answers concise.`
+                }
             });
             
-            const responseText = result.response.text();
+            const responseText = result.text || "No response generated.";
             setMessages(prev => [...prev, { role: 'model', text: responseText }]);
         } catch (error) {
+            console.error(error);
             setMessages(prev => [...prev, { role: 'model', text: "I'm having trouble accessing the latest data. Please try again later." }]);
         } finally {
             setIsLoading(false);
