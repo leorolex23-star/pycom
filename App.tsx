@@ -1,5 +1,4 @@
 
-
 import React, { useState } from 'react';
 // Fix: Add .tsx extension to module paths
 import HomePage from './components/pages/HomePage.tsx';
@@ -16,6 +15,7 @@ import ResourcesPage from './components/pages/ResourcesPage.tsx';
 import PartnerPage from './components/pages/PartnerPage.tsx';
 import AIMLPage from './components/pages/AIMLPage.tsx';
 import InvestPage from './components/pages/InvestPage.tsx'; // Import InvestPage
+import HostPage from './components/pages/HostPage.tsx';
 import AuthModal from './components/AuthModal.tsx';
 import PromotionalBanner from './components/PromotionalBanner.tsx';
 import AILabBanner from './components/AILabBanner.tsx';
@@ -60,6 +60,7 @@ const App: React.FC = () => {
             case 'partner': return <PartnerPage {...pageProps} />;
             case 'aiml': return <AIMLPage {...pageProps} />;
             case 'invest': return <InvestPage {...pageProps} />;
+            case 'host': return <HostPage />;
             default: return <HomePage {...pageProps} />;
         }
     };
@@ -73,13 +74,14 @@ const App: React.FC = () => {
                         <PyComLogoIcon className="h-10 w-10 text-blue-400 group-hover:animate-wiggle-on-hover" />
                         <span>Py<span className="text-blue-400">Com</span></span>
                     </button>
-                    <div className="hidden lg:flex items-center space-x-1 bg-slate-800/50 p-1 rounded-xl border border-slate-700">
+                    <div className="hidden xl:flex items-center space-x-1 bg-slate-800/50 p-1 rounded-xl border border-slate-700 overflow-x-auto">
                         <NavLinkWithTooltip page="home" tooltip="Go to Homepage">Home</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="aiml" tooltip="Learn Hugging Face & AI/ML">AI/ML</NavLinkWithTooltip>
-                        <NavLinkWithTooltip page="careers" tooltip="Explore Python careers">Career Path</NavLinkWithTooltip>
+                        <NavLinkWithTooltip page="careers" tooltip="Explore Python careers">Careers</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="gamezone" tooltip="Play learning games">Gamezone</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="lab" tooltip="Use AI tools">AI Lab</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="agentic-ai" tooltip="Automated Business Agents">Agentic AI</NavLinkWithTooltip>
+                        <NavLinkWithTooltip page="host" tooltip="Self-Hosting & Automation">Host</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="sourcekit" tooltip="Get dev resources">SourceKit</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="courses" tooltip="View our courses">Courses</NavLinkWithTooltip>
                         <NavLinkWithTooltip page="blog" tooltip="Read our articles">Blog</NavLinkWithTooltip>
@@ -90,6 +92,14 @@ const App: React.FC = () => {
                         Sign In
                     </button>
                 </nav>
+                {/* Mobile Nav Placeholder (Basic) */}
+                <div className="xl:hidden overflow-x-auto py-2 px-4 flex space-x-2 bg-slate-900 border-b border-slate-800">
+                     <button onClick={() => setActivePage('gamezone')} className="text-sm text-slate-300 whitespace-nowrap">Gamezone</button>
+                     <button onClick={() => setActivePage('lab')} className="text-sm text-slate-300 whitespace-nowrap">AI Lab</button>
+                     <button onClick={() => setActivePage('agentic-ai')} className="text-sm text-slate-300 whitespace-nowrap">Agentic AI</button>
+                     <button onClick={() => setActivePage('host')} className="text-sm text-slate-300 whitespace-nowrap">Host</button>
+                     <button onClick={() => setActivePage('invest')} className="text-sm text-yellow-400 whitespace-nowrap">Invest</button>
+                </div>
             </header>
             <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {activePage === 'home' && <PromotionalBanner onCTAClick={() => setActivePage('contact')} />}

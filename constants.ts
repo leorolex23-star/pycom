@@ -254,14 +254,15 @@ export const AGENT_WORKFLOWS: { [key: string]: AgentWorkflow } = {
     },
     'billy': {
         agentId: 'billy',
-        name: 'Cold Outreach Campaign',
-        description: 'High-volume lead generation and initial contact for B2B university partnerships.',
+        name: 'Strategic Pipeline Automation',
+        description: 'End-to-end lead processing: enrichment, AI scoring, and multi-channel follow-up sequencing.',
         requiredIntegrations: ['LinkedIn', 'HubSpot', 'Google'],
         steps: [
-            { id: 1, action: 'Scraping University Contacts', tool: 'LinkedIn Sales Nav', duration: 2000, outputDescription: 'Extracted 50 CS Department Heads.' },
-            { id: 2, action: 'Validating Emails', tool: 'Hunter.io Integration', duration: 1500, outputDescription: 'Verified 42 valid email addresses.' },
-            { id: 3, action: 'Generating Sequence', tool: 'HubSpot Sequences', duration: 1000, outputDescription: 'Enrolled contacts in "University Pilot" sequence.' },
-            { id: 4, action: 'Syncing CRM', tool: 'HubSpot CRM', duration: 1000, outputDescription: 'Updated deal stages to "Prospecting".' }
+            { id: 1, action: 'Importing & Enriching Leads', tool: 'LinkedIn Sales Nav + Clearbit', duration: 2500, outputDescription: 'Imported 50 raw leads. Added revenue & tech stack data.' },
+            { id: 2, action: 'AI Lead Scoring', tool: 'Gemini 2.5 Pro', duration: 3000, outputDescription: 'Analyzed fit. Identified 15 "High Potential" targets (Score > 85).' },
+            { id: 3, action: 'Drafting Hyper-Personalized Hooks', tool: 'Gemini 2.5 Flash', duration: 2000, outputDescription: 'Generated icebreakers based on recent LinkedIn activity.' },
+            { id: 4, action: 'Configuring Smart Sequence', tool: 'HubSpot Workflows', duration: 1500, outputDescription: 'Scheduled: Day 1 (Email), Day 3 (LinkedIn Connect), Day 7 (Bump).' },
+            { id: 5, action: 'Launching Campaign', tool: 'Gmail API', duration: 2000, outputDescription: 'Sent 15 emails. Syncing deal stages to CRM.' }
         ]
     },
     'suresh': {
@@ -322,6 +323,77 @@ export const TIMEZONES: Timezone[] = [
     { label: 'CET', timezone: 'Europe/Paris' },
 ];
 
+export const MCP_SERVICES: MCPConnection[] = [
+    { id: '1', name: 'PostgreSQL Prod DB', status: 'connected', type: 'database', latency: '14ms' },
+    { id: '2', name: 'HubSpot CRM API', status: 'connected', type: 'api', latency: '85ms' },
+    { id: '3', name: 'Company Knowledge Base', status: 'connected', type: 'filesystem', latency: '4ms' },
+    { id: '4', name: 'Slack Bot Integration', status: 'disconnected', type: 'api', latency: '--' },
+    { id: '5', name: 'GitHub Repository', status: 'connected', type: 'api', latency: '120ms' },
+    { id: '6', name: 'Stripe Billing', status: 'connected', type: 'api', latency: '95ms' },
+];
+
+export const KNOWLEDGE_DOCS: KnowledgeDocument[] = [
+    { id: '1', name: 'PyCom_Brand_Guidelines_2025.pdf', type: 'pdf', size: '4.5 MB', status: 'indexed' },
+    { id: '2', name: 'Q1_Sales_Targets.csv', type: 'csv', size: '120 KB', status: 'indexed' },
+    { id: '3', name: 'Engineering_Onboarding.txt', type: 'txt', size: '15 KB', status: 'indexed' },
+    { id: '4', name: 'Investor_Pitch_Deck_v3.pdf', type: 'pdf', size: '8.2 MB', status: 'processing' },
+];
+
+export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
+    { id: 't1', title: 'Cold Outreach Sequence', category: 'Sales', description: 'Automates initial contact via Email and LinkedIn with follow-up reminders.', complexity: 'Low', steps: 4 },
+    { id: 't2', title: 'Competitor Price Scraping', category: 'Strategy', description: 'Monitors competitor pricing pages and generates a comparison report.', complexity: 'Medium', steps: 6 },
+    { id: 't3', title: 'SEO Content Generator', category: 'Marketing', description: 'Researches keywords, drafts blog posts, and schedules social media shares.', complexity: 'Medium', steps: 5 },
+    { id: 't4', title: 'Automated Code Review', category: 'Technical', description: 'Scans GitHub PRs for style violations and security vulnerabilities.', complexity: 'High', steps: 7 },
+    { id: 't5', title: 'Invoice Processing', category: 'Operations', description: 'Extracts data from PDF invoices and updates the accounting system.', complexity: 'Medium', steps: 3 },
+    { id: 't6', title: 'Lead Enrichment Pipeline', category: 'Sales', description: 'Enriches raw lead emails with LinkedIn data and company info.', complexity: 'Low', steps: 2 },
+    { id: 't7', title: 'Customer Support Triage', category: 'Operations', description: 'Classifies incoming tickets and routes them to the correct department.', complexity: 'Medium', steps: 4 },
+    { id: 't8', title: 'Social Media Sentiment Analysis', category: 'Marketing', description: 'Analyzes brand mentions on Twitter/Reddit for sentiment trends.', complexity: 'High', steps: 6 },
+    { id: 't9', title: 'New Employee Onboarding', category: 'Operations', description: 'Provisions accounts, sends welcome emails, and schedules training.', complexity: 'Medium', steps: 8 },
+    { id: 't10', title: 'Database Backup & Health Check', category: 'Technical', description: 'Automated daily backups with integrity verification.', complexity: 'Low', steps: 3 },
+    { id: 't11', title: 'Quarterly Business Review Prep', category: 'Strategy', description: 'Aggregates KPIs from all departments into a presentation deck.', complexity: 'High', steps: 10 },
+    { id: 't12', title: 'Webinar Promotion Campaign', category: 'Marketing', description: 'Drip email campaign and social ads management for events.', complexity: 'Medium', steps: 5 },
+    { id: 't13', title: 'Churn Risk Detection', category: 'Sales', description: 'Analyzes usage patterns to identify at-risk customers.', complexity: 'High', steps: 6 },
+    { id: 't14', title: 'Legal Contract Generation', category: 'Operations', description: 'Drafts NDAs and service agreements based on form inputs.', complexity: 'Medium', steps: 3 },
+    { id: 't15', title: 'API Uptime Monitoring', category: 'Technical', description: 'Checks endpoints every minute and alerts via Slack on failure.', complexity: 'Low', steps: 2 },
+    { id: 't16', title: 'Investment Portfolio Tracker', category: 'Strategy', description: 'Updates asset values real-time and calculates ROI.', complexity: 'Medium', steps: 4 },
+    { id: 't17', title: 'Product Launch Checklist', category: 'Marketing', description: 'Orchestrates cross-channel announcements and press releases.', complexity: 'High', steps: 12 },
+    { id: 't18', title: 'Recruitment Pipeline Manager', category: 'Operations', description: 'Filters resumes and schedules screening calls.', complexity: 'Medium', steps: 5 },
+    { id: 't19', title: 'Bug Bounty Triager', category: 'Technical', description: 'Validates security reports and assigns severity levels.', complexity: 'High', steps: 5 },
+    { id: 't20', title: 'Newsletter Curator', category: 'Marketing', description: 'Aggregates industry news and drafts a weekly newsletter.', complexity: 'Medium', steps: 4 },
+    // ... Adding placeholders to simulate 100+
+    ...Array.from({ length: 20 }).map((_, i) => ({
+        id: `gen_sales_${i}`,
+        title: `Sales Automation Strategy #${i + 1}`,
+        category: 'Sales' as const,
+        description: 'Advanced lead nurturing and conversion optimization workflow.',
+        complexity: 'Medium' as const,
+        steps: 5
+    })),
+    ...Array.from({ length: 20 }).map((_, i) => ({
+        id: `gen_tech_${i}`,
+        title: `DevOps Pipeline #${i + 1}`,
+        category: 'Technical' as const,
+        description: 'CI/CD enhancement and infrastructure automation script.',
+        complexity: 'High' as const,
+        steps: 8
+    })),
+    ...Array.from({ length: 20 }).map((_, i) => ({
+        id: `gen_mkt_${i}`,
+        title: `Growth Hacking Flow #${i + 1}`,
+        category: 'Marketing' as const,
+        description: 'Automated content distribution and viral loop mechanics.',
+        complexity: 'Low' as const,
+        steps: 3
+    })),
+    ...Array.from({ length: 20 }).map((_, i) => ({
+        id: `gen_ops_${i}`,
+        title: `Operational Efficiency Protocol #${i + 1}`,
+        category: 'Operations' as const,
+        description: 'Streamlining internal resource allocation and logistics.',
+        complexity: 'Medium' as const,
+        steps: 6
+    }))
+];
 
 export const BLOG_POSTS: BlogPost[] = [
     {
@@ -579,220 +651,139 @@ export const BLOG_POSTS: BlogPost[] = [
 ];
 
 export const GAME_CATEGORIES: GameCategory[] = [
-  {
-    id: 'syntax',
-    title: 'Syntax & Basics',
-    description: 'Master the fundamental grammar of Python.',
-    topics: [
-      { id: 'indentation', title: 'Indentation Invaders', description: 'Fix indentation errors.', gameType: 'quiz', questions: [] },
-      { id: 'variables', title: 'Variable Valley', description: 'Understand data types.', gameType: 'quiz', questions: [] }
-    ]
-  },
-  {
-    id: 'structures',
-    title: 'Data Structures',
-    description: 'Learn Lists, Dictionaries, Sets, and Tuples.',
-    topics: [
-      { id: 'dilemma', title: 'Data Structure Dilemma', description: 'Choose the right structure.', gameType: 'quiz', questions: [] },
-      { id: 'comprehensions', title: 'Comprehension Crafter', description: 'Build list comprehensions.', gameType: 'quiz', questions: [] }
-    ]
-  },
-  {
-    id: 'oop',
-    title: 'Object-Oriented Programming',
-    description: 'Classes, Objects, Inheritance, and Polymorphism.',
-    topics: [
-      { id: 'fortress', title: 'OOP Fortress', description: 'Build classes and methods.', gameType: 'quiz', questions: [] }
-    ]
-  },
-  {
-    id: 'advanced',
-    title: 'Advanced Concepts',
-    description: 'Decorators, Generators, and Error Handling.',
-    topics: [
-      { id: 'escapist', title: 'Exception Escapist', description: 'Handle errors gracefully.', gameType: 'quiz', questions: [] },
-      { id: 'regex', title: 'Regex Raptor', description: 'Master regular expressions.', gameType: 'quiz', questions: [] }
-    ]
-  }
+    {
+        id: 'basics',
+        title: 'Python Basics',
+        description: 'Master the fundamentals: variables, loops, and functions.',
+        topics: [
+            { id: 'invaders', title: 'Indentation Invaders', description: 'Fix indentation errors.', gameType: 'quiz', questions: [] },
+            { id: 'frenzy', title: 'Function Frenzy', description: 'Predict function outputs.', gameType: 'quiz', questions: [] },
+            { id: 'dilemma', title: 'Data Structure Dilemma', description: 'Choose the right data structure.', gameType: 'quiz', questions: [] },
+        ]
+    },
+    {
+        id: 'advanced',
+        title: 'Advanced Concepts',
+        description: 'Level up with OOP, decorators, and error handling.',
+        topics: [
+            { id: 'fortress', title: 'OOP Fortress', description: 'Build classes and objects.', gameType: 'quiz', questions: [] },
+            { id: 'crafter', title: 'Comprehension Crafter', description: 'Write pythonic list comprehensions.', gameType: 'quiz', questions: [] },
+            { id: 'escapist', title: 'Exception Escapist', description: 'Handle errors gracefully.', gameType: 'quiz', questions: [] },
+        ]
+    },
+    {
+        id: 'web',
+        title: 'Web Development',
+        description: 'Learn Flask, Django, and API concepts.',
+        topics: [
+            { id: 'fury', title: 'Framework Fury', description: 'Django vs Flask quiz.', gameType: 'quiz', questions: [] },
+        ]
+    },
+    {
+        id: 'tools',
+        title: 'Tools & Debugging',
+        description: 'Master Regex, Git, and Debugging.',
+        topics: [
+            { id: 'debugger', title: 'Code Debugger', description: 'Find and fix bugs.', gameType: 'quiz', questions: [] },
+            { id: 'raptor', title: 'Regex Raptor', description: 'Match patterns with Regex.', gameType: 'quiz', questions: [] },
+        ]
+    },
+    {
+        id: 'aiml',
+        title: 'AI & Machine Learning',
+        description: 'Explore the world of AI models and pipelines.',
+        topics: [
+            { id: 'hf-quest', title: 'Hugging Face Quest', description: 'Learn the HF ecosystem.', gameType: 'quiz', questions: [] },
+        ]
+    }
 ];
 
 export const COURSES_DATA: Course[] = [
-  {
-    title: "Python Zero to Hero",
-    description: "The complete roadmap to mastering Python, from variables to advanced OOP.",
-    level: "Beginner",
-    duration: "8 Weeks",
-    isAiPowered: true
-  },
-  {
-    title: "Data Science with Pandas",
-    description: "Learn to analyze, clean, and visualize complex datasets.",
-    level: "Intermediate",
-    duration: "6 Weeks",
-    isAiPowered: true
-  },
-  {
-    title: "AI & Machine Learning Masterclass",
-    description: "Build neural networks and deploy models using TensorFlow and PyTorch.",
-    level: "Advanced",
-    duration: "12 Weeks",
-    isAiPowered: true
-  },
-  {
-    title: "Django Web Development",
-    description: "Build robust, scalable web applications with the Django framework.",
-    level: "Intermediate",
-    duration: "10 Weeks",
-    isAiPowered: false
-  }
+    {
+        title: "Python for Absolute Beginners",
+        description: "Start your coding journey here. No prior experience required. Learn variables, loops, and logic.",
+        level: "Beginner",
+        duration: "4 Weeks",
+        isAiPowered: true
+    },
+    {
+        title: "Data Science with Pandas",
+        description: "Master data manipulation and analysis. Learn to clean, process, and visualize complex datasets.",
+        level: "Intermediate",
+        duration: "6 Weeks",
+        isAiPowered: true
+    },
+    {
+        title: "Machine Learning A-Z",
+        description: "Build predictive models using Scikit-Learn. Understand regression, classification, and clustering.",
+        level: "Advanced",
+        duration: "8 Weeks",
+        isAiPowered: false
+    },
+    {
+        title: "Django Web Development",
+        description: "Build robust, scalable web applications with Python's most popular web framework.",
+        level: "Intermediate",
+        duration: "6 Weeks",
+        isAiPowered: true
+    }
 ];
 
 export const AD_PRICING: AdPricing[] = [
-  {
-    type: 'Leaderboard Banner',
-    description: 'Premium placement at the top of the homepage. High visibility.',
-    inr: '15,000',
-    usd: '180',
-    eur: '165'
-  },
-  {
-    type: 'Sidebar Ad',
-    description: 'Persistent ad on the blog and documentation pages.',
-    inr: '8,000',
-    usd: '95',
-    eur: '88'
-  },
-  {
-    type: 'Newsletter Feature',
-    description: 'Dedicated spot in our weekly newsletter sent to 10k+ devs.',
-    inr: '12,000',
-    usd: '145',
-    eur: '132'
-  }
+    {
+        type: "Top Banner",
+        description: "Premium 728x90 placement at the top of all pages. High visibility.",
+        inr: "15,000",
+        usd: "200",
+        eur: "185"
+    },
+    {
+        type: "Sidebar Ad",
+        description: "300x250 placement on blog and resource pages. Targeted engagement.",
+        inr: "8,000",
+        usd: "100",
+        eur: "95"
+    },
+    {
+        type: "Newsletter Feature",
+        description: "Dedicated slot in our weekly newsletter sent to 10k+ subscribers.",
+        inr: "5,000",
+        usd: "60",
+        eur: "55"
+    }
 ];
 
 export const SPONSORSHIP_DATA: Sponsorship = {
-  title: "Become a PyCom Sponsor",
-  description: "Align your brand with the future of AI and Python education. Sponsors get exclusive branding on our course certificates, access to our talent pool, and co-marketing opportunities.",
-  cta: "View Sponsorship Deck"
+    title: "Sponsor a Hackathon",
+    description: "Partner with us to host a community hackathon. Gain massive brand exposure, access top talent, and support innovation.",
+    cta: "Become a Sponsor"
 };
 
 export const OFFERS_DATA: PartnerOffer[] = [
-  {
-    partner: "AI Cloud Host",
-    title: "$100 Free Credits",
-    description: "Deploy your Python apps on high-performance GPU instances.",
-    cta: "Claim Credits"
-  },
-  {
-    partner: "Modern Business Network",
-    title: "20% Off Web Dev",
-    description: "Get a professional website built for your startup or portfolio.",
-    cta: "Get Discount"
-  },
-  {
-    partner: "TechGear Pro",
-    title: "15% Off Mechanical Keyboards",
-    description: "Type faster and happier with premium developer gear.",
-    cta: "Shop Now"
-  }
+    {
+        partner: "AI Cloud Host",
+        title: "$100 Free Credits",
+        description: "Deploy your Python apps with ease. Reliable, scalable, and developer-friendly.",
+        cta: "Claim Offer"
+    },
+    {
+        partner: "Modern Business Network",
+        title: "20% Off Web Dev Services",
+        description: "Need a professional website? Get expert design and development at a discount.",
+        cta: "Get Quote"
+    }
 ];
 
 export const LEADS_DATA: { [key: string]: Lead[] } = {
-    'jeyabal': [
-        { id: 'l1', name: 'Sarah Connor', company: 'Cyberdyne Systems', email: 'sarah@cyberdyne.com', linkedin: 'linkedin.com/in/sarah', status: 'Research', priority: 'High' },
-        { id: 'l2', name: 'Miles Dyson', company: 'Neural Net Corp', email: 'miles@neural.net', linkedin: 'linkedin.com/in/miles', status: 'Outreach', priority: 'Medium' },
-    ],
     'billy': [
-        { id: 'l3', name: 'John Hammond', company: 'InGen', email: 'jhammond@ingen.com', linkedin: 'linkedin.com/in/johnhammond', status: 'Pipeline', priority: 'High' },
-        { id: 'l4', name: 'Ellie Sattler', company: 'Paleo Research', email: 'ellie@paleo.org', linkedin: 'linkedin.com/in/ellie', status: 'Email', priority: 'Low' },
-        { id: 'l5', name: 'Alan Grant', company: 'Montana Digs', email: 'alan@montana.edu', linkedin: 'linkedin.com/in/alangrant', status: 'Identify', priority: 'Medium' },
+        { id: 'l1', name: 'Sarah Jenkins', company: 'EduTech Innovations', email: 'sarah.j@edutech.com', linkedin: 'linkedin.com/in/sarahj', status: 'Research', priority: 'High' },
+        { id: 'l2', name: 'Michael Ross', company: 'Global Learning Systems', email: 'mross@gls.org', linkedin: 'linkedin.com/in/mross', status: 'Outreach', priority: 'Medium' },
+        { id: 'l3', name: 'David Chen', company: 'Future Code Academy', email: 'david@futurecode.io', linkedin: 'linkedin.com/in/davidchen', status: 'Identify', priority: 'Low' },
+        { id: 'l4', name: 'Emily White', company: 'SkillUp Corp', email: 'emily.w@skillup.com', linkedin: 'linkedin.com/in/emilyw', status: 'Pipeline', priority: 'High' },
+        { id: 'l5', name: 'Robert Brown', company: 'TechStream Solutions', email: 'rbrown@techstream.net', linkedin: 'linkedin.com/in/rbrown', status: 'Formatting', priority: 'Medium' },
     ],
-    'ginu': [
-        { id: 'l6', name: 'Bruce Wayne', company: 'Wayne Enterprises', email: 'bruce@wayne.com', linkedin: 'linkedin.com/in/bruce', status: 'Closure', priority: 'High' },
-    ],
-    'suresh': [
-        { id: 'l7', name: 'Tony Stark', company: 'Stark Industries', email: 'tony@stark.com', linkedin: 'linkedin.com/in/tony', status: 'Lead Filtering', priority: 'Medium' },
-    ],
-    'tony': [
-        { id: 'l8', name: 'Clark Kent', company: 'Daily Planet', email: 'clark@dailyplanet.com', linkedin: 'linkedin.com/in/clark', status: 'Formatting', priority: 'Low' },
+    'jeyabal': [
+        { id: 'j1', name: 'Venture Capital A', company: 'Sequoia Capital', email: 'partners@sequoia.com', linkedin: 'linkedin.com/company/sequoia', status: 'Research', priority: 'High' },
+        { id: 'j2', name: 'Angel Investor B', company: 'Private Office', email: 'invest@private.com', linkedin: 'linkedin.com/in/investor', status: 'Identify', priority: 'Medium' },
     ]
 };
-
-// Expanded Templates Library (50+ Templates)
-export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
-    // SALES
-    { id: 'wf-1', title: 'B2B Lead Enrichment', category: 'Sales', description: 'Enrich email leads with LinkedIn data and company info using Clearbit.', complexity: 'Low', steps: 3 },
-    { id: 'wf-8', title: 'Cold Outreach Sequencer', category: 'Sales', description: 'Generate personalized 3-step email sequences for new leads.', complexity: 'Medium', steps: 5 },
-    { id: 'wf-13', title: 'LinkedIn Connection Request Bot', category: 'Sales', description: 'Send personalized connection requests to 2nd-degree connections.', complexity: 'Medium', steps: 4 },
-    { id: 'wf-14', title: 'Deal Stalled Alert', category: 'Sales', description: 'Monitor CRM for deals stuck in stage > 14 days and notify owner.', complexity: 'Low', steps: 2 },
-    { id: 'wf-15', title: 'Meeting Prep Dossier', category: 'Sales', description: 'Scrape prospect news and recent posts before a demo call.', complexity: 'High', steps: 6 },
-    { id: 'wf-16', title: 'Contract Gen & Send', category: 'Sales', description: 'Auto-fill legal templates with CRM data and send via DocuSign.', complexity: 'Medium', steps: 4 },
-    { id: 'wf-17', title: 'Churn Prediction', category: 'Sales', description: 'Analyze usage patterns to flag accounts at risk of cancelling.', complexity: 'High', steps: 8 },
-    { id: 'wf-18', title: 'Inbound Lead Router', category: 'Sales', description: 'Grade inbound form submissions and assign to the right SDR.', complexity: 'Medium', steps: 3 },
-    { id: 'wf-19', title: 'Webinar Follow-up', category: 'Sales', description: 'Segment webinar attendees and send relevant replay links.', complexity: 'Low', steps: 3 },
-    
-    // MARKETING
-    { id: 'wf-3', title: 'SEO Keyword Clusterer', category: 'Marketing', description: 'Group thousands of keywords by semantic intent using Gemini embeddings.', complexity: 'High', steps: 7 },
-    { id: 'wf-6', title: 'Viral Tweet Generator', category: 'Marketing', description: 'Generate 10 tweet variations from a blog post URL and schedule via Buffer.', complexity: 'Low', steps: 4 },
-    { id: 'wf-9', title: 'Podcast Summarizer', category: 'Marketing', description: 'Transcribe audio file and generate show notes + social clips.', complexity: 'High', steps: 8 },
-    { id: 'wf-20', title: 'Blog Post to Video Script', category: 'Marketing', description: 'Convert a written article into a 60s script for TikTok/Reels.', complexity: 'Medium', steps: 4 },
-    { id: 'wf-21', title: 'Competitor Ad Spy', category: 'Marketing', description: 'Monitor Facebook Ad Library for competitor launches.', complexity: 'Medium', steps: 3 },
-    { id: 'wf-22', title: 'User Review Sentiment Analysis', category: 'Marketing', description: 'Scrape G2/Capterra reviews and categorize feedback themes.', complexity: 'Medium', steps: 5 },
-    { id: 'wf-23', title: 'Newsletter Curator', category: 'Marketing', description: 'Aggregate top 5 industry news items for the weekly dispatch.', complexity: 'Low', steps: 4 },
-    { id: 'wf-24', title: 'SEO Meta Tag Auto-Fill', category: 'Marketing', description: 'Audit site pages and generate missing meta titles/descriptions.', complexity: 'Low', steps: 3 },
-    { id: 'wf-25', title: 'Influencer Outreach', category: 'Marketing', description: 'Find influencers in niche and draft collaboration offers.', complexity: 'High', steps: 6 },
-
-    // STRATEGY
-    { id: 'wf-2', title: 'Competitor Price Monitor', category: 'Strategy', description: 'Scrape competitor pricing pages daily and alert via Slack on changes.', complexity: 'Medium', steps: 5 },
-    { id: 'wf-4', title: 'Automated Investor Update', category: 'Strategy', description: 'Pull metrics from Stripe/HubSpot and draft a monthly investor update email.', complexity: 'Medium', steps: 4 },
-    { id: 'wf-12', title: 'Daily News Digest', category: 'Strategy', description: 'Curate industry news from RSS feeds and summarize for executive team.', complexity: 'Low', steps: 3 },
-    { id: 'wf-26', title: 'Quarterly Business Review (QBR) Prep', category: 'Strategy', description: 'Compile KPIs from all departments into a slide deck outline.', complexity: 'High', steps: 9 },
-    { id: 'wf-27', title: 'Market Trend Spotter', category: 'Strategy', description: 'Analyze Google Trends and Reddit for emerging product categories.', complexity: 'Medium', steps: 5 },
-    { id: 'wf-28', title: 'Acquisition Target Scout', category: 'Strategy', description: 'Filter Crunchbase for startups matching M&A criteria.', complexity: 'High', steps: 7 },
-    { id: 'wf-29', title: 'Pricing Elasticity Model', category: 'Strategy', description: 'Simulate revenue impact of pricing changes based on historical data.', complexity: 'High', steps: 6 },
-
-    // TECHNICAL
-    { id: 'wf-5', title: 'GitHub Issue Triager', category: 'Technical', description: 'Label and assign new GitHub issues based on content analysis.', complexity: 'Low', steps: 3 },
-    { id: 'wf-10', title: 'Database Migration Validator', category: 'Technical', description: 'Compare row counts and schemas between source and destination DBs.', complexity: 'Medium', steps: 3 },
-    { id: 'wf-30', title: 'Log Anomaly Detector', category: 'Technical', description: 'Scan server logs for unusual error spikes and notify on-call.', complexity: 'Medium', steps: 4 },
-    { id: 'wf-31', title: 'Auto-Documentation', category: 'Technical', description: 'Read codebase and generate updated API documentation in Notion.', complexity: 'High', steps: 8 },
-    { id: 'wf-32', title: 'PR Code Reviewer', category: 'Technical', description: 'First-pass linting and security check on new Pull Requests.', complexity: 'Medium', steps: 4 },
-    { id: 'wf-33', title: 'Dependency Update Checker', category: 'Technical', description: 'Check package.json for outdated libs and open upgrade PRs.', complexity: 'Low', steps: 3 },
-    { id: 'wf-34', title: 'Uptime Status Page Updater', category: 'Technical', description: 'Update public status page automatically during outages.', complexity: 'Low', steps: 2 },
-    { id: 'wf-35', title: 'SQL Query Optimizer', category: 'Technical', description: 'Analyze slow query logs and suggest index improvements.', complexity: 'High', steps: 5 },
-
-    // OPERATIONS
-    { id: 'wf-7', title: 'Resume Screening Bot', category: 'Operations', description: 'Filter PDF resumes based on key skills and rank candidates.', complexity: 'High', steps: 6 },
-    { id: 'wf-11', title: 'Customer Support Auto-Reply', category: 'Operations', description: 'Draft responses to common support tickets based on KB articles.', complexity: 'Medium', steps: 4 },
-    { id: 'wf-36', title: 'Invoice Reconciliation', category: 'Operations', description: 'Match bank transactions with Stripe payouts and Xero invoices.', complexity: 'High', steps: 7 },
-    { id: 'wf-37', title: 'Onboarding Orchestrator', category: 'Operations', description: 'Create accounts (Slack, Gmail, Jira) for new hires automatically.', complexity: 'Medium', steps: 8 },
-    { id: 'wf-38', title: 'Expense Report Auditor', category: 'Operations', description: 'Flag expense receipts that exceed policy limits.', complexity: 'Low', steps: 3 },
-    { id: 'wf-39', title: 'Meeting Room Booker', category: 'Operations', description: 'Find and book available rooms for recurring team syncs.', complexity: 'Low', steps: 2 },
-    { id: 'wf-40', title: 'Vendor Contract Renewal Alert', category: 'Operations', description: 'Notify legal 60 days before SaaS contracts auto-renew.', complexity: 'Low', steps: 3 },
-    { id: 'wf-41', title: 'Employee Pulse Survey', category: 'Operations', description: 'Send weekly Slack sentiment poll and aggregate anonymous results.', complexity: 'Medium', steps: 4 },
-    { id: 'wf-42', title: 'Inventory Restock Order', category: 'Operations', description: 'Auto-order office supplies when stock levels dip below threshold.', complexity: 'Medium', steps: 4 },
-    { id: 'wf-43', title: 'GDPR Data Request Handler', category: 'Operations', description: 'Compile user data from all systems for export requests.', complexity: 'High', steps: 10 },
-];
-
-export const MCP_SERVICES: MCPConnection[] = [
-    { id: 'mcp-1', name: 'Primary PostgreSQL', status: 'connected', type: 'database', latency: '45ms' },
-    { id: 'mcp-2', name: 'HubSpot CRM API', status: 'connected', type: 'api', latency: '120ms' },
-    { id: 'mcp-3', name: 'Corporate Google Drive', status: 'connected', type: 'filesystem', latency: '80ms' },
-    { id: 'mcp-4', name: 'Slack Bot Integration', status: 'disconnected', type: 'api', latency: '-' },
-    { id: 'mcp-5', name: 'Local Vector Store (Chroma)', status: 'connected', type: 'database', latency: '12ms' },
-    { id: 'mcp-6', name: 'GitHub Repo Access', status: 'connected', type: 'api', latency: '65ms' },
-    { id: 'mcp-7', name: 'Stripe Payments', status: 'connected', type: 'api', latency: '110ms' },
-    { id: 'mcp-8', name: 'Jira Cloud', status: 'connected', type: 'api', latency: '150ms' },
-    { id: 'mcp-9', name: 'Zendesk Support', status: 'disconnected', type: 'api', latency: '-' },
-    { id: 'mcp-10', name: 'Shopify Store', status: 'connected', type: 'api', latency: '95ms' },
-];
-
-export const KNOWLEDGE_DOCS: KnowledgeDocument[] = [
-    { id: 'doc-1', name: 'Q3_Financial_Report.pdf', type: 'pdf', size: '4.2 MB', status: 'indexed' },
-    { id: 'doc-2', name: 'Product_Roadmap_2025.csv', type: 'csv', size: '156 KB', status: 'indexed' },
-    { id: 'doc-3', name: 'Competitor_Analysis_Notes.txt', type: 'txt', size: '12 KB', status: 'processing' },
-    { id: 'doc-4', name: 'Employee_Handbook_v2.pdf', type: 'pdf', size: '8.5 MB', status: 'pending' },
-    { id: 'doc-5', name: 'Sales_Playbook_Enterprise.docx', type: 'pdf', size: '1.8 MB', status: 'indexed' },
-    { id: 'doc-6', name: 'API_Documentation_Internal.md', type: 'txt', size: '450 KB', status: 'indexed' },
-];

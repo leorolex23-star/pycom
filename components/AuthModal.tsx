@@ -1,15 +1,17 @@
 
 import React, { useState } from 'react';
-// Fix: Add .tsx extension to module path
-import { GoogleIcon, MobileIcon } from './Icons.tsx';
+import { GoogleIcon, MobileIcon, ShieldCheckIcon, UserCircleIcon, BuildingOfficeIcon, BriefcaseIcon, CheckCircleIcon, XMarkIcon } from './Icons.tsx';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+type AuthStep = 'initial' | 'data-collection' | 'success';
+
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
+  const [step, setStep] = useState<AuthStep>('initial');
   
   // States for different auth flows
   const [authMethod, setAuthMethod] = useState<'default' | 'mobile'>('default');
@@ -18,6 +20,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   // Form inputs
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpCode, setOtpCode] = useState('');
+  
+  // Data Collection Inputs
+  const [userData, setUserData] = useState({
+      fullName: '',
+      role: '',
+      company: '',
+      goal: 'Learning Python'
+  });
+
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -26,8 +37,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const resetState = () => {
       setAuthMethod('default');
       setMobileStep('number');
+      setStep('initial');
       setPhoneNumber('');
       setOtpCode('');
+      setUserData({ fullName: '', role: '', company: '', goal: 'Learning Python' });
       setIsLoading(false);
       setSuccessMessage('');
   };
@@ -37,12 +50,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       onClose();
   }
 
-  const handleGoogleLogin = () => {
+  const handleProviderClick = () => {
       setIsLoading(true);
-      // Simulate API call
+      // Simulate provider auth delay
       setTimeout(() => {
           setIsLoading(false);
-          setSuccessMessage(`Successfully signed in with Google as ${activeTab === 'signin' ? 'user' : 'new user'}.`);
+          setStep('data-collection');
+      }, 1000);
+  };
+
+  const handleDataSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      setIsLoading(true);
+      // Simulate API call to save user data
+      setTimeout(() => {
+          setIsLoading(false);
+          setSuccessMessage(`Welcome to PyCom, ${userData.fullName}!`);
+          setStep('success');
           setTimeout(handleClose, 2000);
       }, 1500);
   };
@@ -51,7 +75,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       e.preventDefault();
       if(!phoneNumber) return;
       setIsLoading(true);
-      // Simulate sending OTP
       setTimeout(() => {
           setIsLoading(false);
           setMobileStep('otp');
@@ -62,12 +85,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       e.preventDefault();
       if(!otpCode) return;
       setIsLoading(true);
-      // Simulate verifying OTP
       setTimeout(() => {
           setIsLoading(false);
-          setSuccessMessage('Phone number verified successfully!');
-          setTimeout(handleClose, 2000);
-      }, 1500);
+          setStep('data-collection'); // Move to data collection after OTP
+      }, 1000);
   };
 
   const TabButton: React.FC<{ tab: 'signin' | 'signup', children: React.ReactNode }> = ({ tab, children }) => (
@@ -87,40 +108,112 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-fade-in-up" onClick={handleClose}>
       <div
-        className="bg-gray-900 border border-purple-500 rounded-2xl w-full max-w-md shadow-2xl p-8 relative"
+        className="bg-gray-900 border border-purple-500 rounded-2xl w-full max-w-md shadow-2xl p-8 relative overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-2">
           <h2 className="text-2xl font-bold text-white">
-            {activeTab === 'signin' ? 'Welcome Back!' : 'Join PyCom'}
+            {step === 'data-collection' ? 'Almost There!' : activeTab === 'signin' ? 'Welcome Back' : 'Join PyCom'}
           </h2>
-          <button onClick={handleClose} className="text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
-        </div>
-        
-        <div className="border-b border-gray-700 mt-4 mb-6">
-            <div className="flex">
-                <TabButton tab="signin">Sign In</TabButton>
-                <TabButton tab="signup">Sign Up</TabButton>
-            </div>
+          <button onClick={handleClose} className="text-gray-400 hover:text-white transition-colors">
+            <XMarkIcon className="w-6 h-6" />
+          </button>
         </div>
 
-        {successMessage ? (
+        {step === 'initial' && (
+            <div className="border-b border-gray-700 mt-2 mb-6">
+                <div className="flex">
+                    <TabButton tab="signin">Sign In</TabButton>
+                    <TabButton tab="signup">Sign Up</TabButton>
+                </div>
+            </div>
+        )}
+
+        {step === 'success' ? (
             <div className="text-center py-8 animate-pop-in">
-                <div className="w-16 h-16 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                <div className="w-16 h-16 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/50">
+                    <CheckCircleIcon className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">Success!</h3>
                 <p className="text-gray-300">{successMessage}</p>
             </div>
+        ) : step === 'data-collection' ? (
+            <div className="animate-fade-in-up">
+                <p className="text-sm text-gray-400 mb-6">Please complete your profile to access the dashboard.</p>
+                <form onSubmit={handleDataSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
+                        <div className="relative">
+                            <UserCircleIcon className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+                            <input 
+                                type="text" 
+                                required
+                                value={userData.fullName}
+                                onChange={(e) => setUserData({...userData, fullName: e.target.value})}
+                                className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 p-3 text-white focus:border-purple-500 focus:outline-none"
+                                placeholder="John Doe"
+                            />
+                        </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Job Title</label>
+                            <input 
+                                type="text" 
+                                required
+                                value={userData.role}
+                                onChange={(e) => setUserData({...userData, role: e.target.value})}
+                                className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:border-purple-500 focus:outline-none"
+                                placeholder="Developer"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Company</label>
+                            <input 
+                                type="text" 
+                                value={userData.company}
+                                onChange={(e) => setUserData({...userData, company: e.target.value})}
+                                className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:border-purple-500 focus:outline-none"
+                                placeholder="Acme Inc."
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Primary Goal</label>
+                        <div className="relative">
+                            <BriefcaseIcon className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+                            <select 
+                                value={userData.goal}
+                                onChange={(e) => setUserData({...userData, goal: e.target.value})}
+                                className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 p-3 text-white focus:border-purple-500 focus:outline-none appearance-none"
+                            >
+                                <option>Learning Python</option>
+                                <option>Hiring Talent</option>
+                                <option>Strategic Investment</option>
+                                <option>Enterprise Solutions</option>
+                                <option>Building a Project</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        disabled={isLoading}
+                        className="w-full mt-4 bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-700 transition-all hover:scale-[1.02] shadow-lg shadow-purple-900/20 flex justify-center items-center"
+                    >
+                        {isLoading ? <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span> : 'Complete Setup'}
+                    </button>
+                </form>
+            </div>
         ) : (
             <>
-                {/* Default View: Social Login + Email Form */}
+                {/* Initial Step: Login Options */}
                 {authMethod === 'default' && (
                     <div className="space-y-4 animate-fade-in-up">
                         <button 
-                            onClick={handleGoogleLogin}
+                            onClick={handleProviderClick}
                             disabled={isLoading}
                             className="w-full bg-white text-gray-900 font-bold py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center gap-3"
                         >
@@ -130,6 +223,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                 <GoogleIcon className="w-5 h-5" />
                             )}
                             <span>Continue with Google</span>
+                        </button>
+
+                        <button 
+                            onClick={handleProviderClick}
+                            disabled={isLoading}
+                            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-3 shadow-lg shadow-blue-900/20"
+                        >
+                            <ShieldCheckIcon className="w-5 h-5" />
+                            <span>Enterprise SSO</span>
                         </button>
 
                         <button 
@@ -147,25 +249,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                         </div>
 
                         <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                            <div>
-                                <label className="block text-gray-300 mb-1 text-sm">Email</label>
-                                <input type="email" className="w-full bg-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white" placeholder="you@example.com" />
-                            </div>
-                            <div>
-                                <label className="block text-gray-300 mb-1 text-sm">Password</label>
-                                <input type="password" className="w-full bg-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white" placeholder="••••••••" />
-                            </div>
-                            <button className="w-full mt-2 bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                            <input type="email" className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white" placeholder="Email address" />
+                            <input type="password" className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white" placeholder="Password" />
+                            <button onClick={handleProviderClick} className="w-full mt-2 bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-700 transition-colors shadow-lg shadow-purple-900/20">
                                 {activeTab === 'signin' ? 'Sign In' : 'Create Account'}
                             </button>
                         </form>
                     </div>
                 )}
 
-                {/* Mobile Authentication Flow */}
+                {/* Mobile Flow */}
                 {authMethod === 'mobile' && (
                     <div className="animate-fade-in-up">
-                        <button onClick={() => setAuthMethod('default')} className="text-purple-400 text-sm font-semibold hover:text-purple-300 mb-4 flex items-center gap-1">
+                        <button onClick={() => setAuthMethod('default')} className="text-purple-400 text-sm font-semibold hover:text-purple-300 mb-6 flex items-center gap-1">
                             &larr; Back to all methods
                         </button>
 
@@ -174,7 +270,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                 <h3 className="text-lg font-bold text-white">Enter your mobile number</h3>
                                 <p className="text-sm text-gray-400">We'll send you a verification code.</p>
                                 <div className="flex gap-2">
-                                    <select className="bg-gray-700 rounded-lg p-3 text-white border-r border-gray-600 focus:outline-none">
+                                    <select className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none">
                                         <option>+1</option>
                                         <option>+91</option>
                                         <option>+44</option>
@@ -183,7 +279,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                         type="tel" 
                                         value={phoneNumber}
                                         onChange={(e) => setPhoneNumber(e.target.value)}
-                                        className="flex-grow bg-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white" 
+                                        className="flex-grow bg-gray-800 border border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white" 
                                         placeholder="Mobile Number" 
                                         required
                                     />
@@ -201,7 +297,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                     maxLength={6}
                                     value={otpCode}
                                     onChange={(e) => setOtpCode(e.target.value)}
-                                    className="w-full bg-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white text-center tracking-widest text-xl" 
+                                    className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white text-center tracking-widest text-xl" 
                                     placeholder="000000" 
                                     required
                                 />
@@ -219,7 +315,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         )}
 
         <p className="text-center text-gray-600 text-xs mt-6">
-            By continuing, you agree to PyCom's Terms of Service and Privacy Policy.
+            By continuing, you agree to PyCom's Terms of Service.
         </p>
       </div>
     </div>

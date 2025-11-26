@@ -1,7 +1,8 @@
 
+
 import React, { useState, useEffect } from 'react';
 import type { GitFile, GitRepo, GitCommit } from '../../types.ts';
-import { GitBranchIcon, CloudArrowDownIcon, CheckCircleIcon, ClockIcon, DocumentTextIcon } from '../Icons.tsx';
+import { GitBranchIcon, CloudArrowDownIcon, CloudArrowUpIcon, CheckCircleIcon, ClockIcon, DocumentTextIcon, PlusIcon, ArrowRightOnRectangleIcon } from '../Icons.tsx';
 
 const GitManager: React.FC = () => {
     const [repoUrl, setRepoUrl] = useState('');
@@ -10,6 +11,9 @@ const GitManager: React.FC = () => {
     const [fileContent, setFileContent] = useState('');
     const [commitMessage, setCommitMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isPushing, setIsPushing] = useState(false);
+    const [newBranchName, setNewBranchName] = useState('');
+    const [showNewBranchInput, setShowNewBranchInput] = useState(false);
 
     // Mock files for simulation
     const mockFiles: GitFile[] = [
@@ -31,7 +35,8 @@ const GitManager: React.FC = () => {
                 name: repoUrl.split('/').pop() || 'project',
                 files: JSON.parse(JSON.stringify(mockFiles)), // Deep copy
                 commits: [],
-                branch: 'main'
+                branch: 'main',
+                branches: ['main', 'develop', 'feature/login']
             };
             setRepo(newRepo);
             setActiveFileIndex(0);
@@ -97,15 +102,50 @@ const GitManager: React.FC = () => {
         setCommitMessage('');
     };
 
-    // Simple syntax highlighting helper (reused concept)
-    const highlightCode = (code: string) => {
-        // Very basic Python highlighting for display
-        let highlighted = code
-            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-            .replace(/(def|class|import|from|return|if|else|print)/g, '<span class="text-purple-400 font-bold">$1</span>')
-            .replace(/(".*?"|'.*?')/g, '<span class="text-green-400">$1</span>')
-            .replace(/(#.*)/g, '<span class="text-gray-500 italic">$1</span>');
-        return { __html: highlighted };
+    const handlePush = () => {
+        if (!repo) return;
+        setIsPushing(true);
+        setTimeout(() => {
+            setIsPushing(false);
+            alert(`Successfully pushed ${repo.commits.length} commits to origin/${repo.branch}`);
+        }, 2000);
+    };
+
+    const handleBranchChange = (branch: string) => {
+        if (repo) {
+            setRepo({ ...repo, branch });
+            // In a real app, we would reload files for that branch
+        }
+    };
+
+    const createBranch = () => {
+        if (repo && newBranchName.trim()) {
+            setRepo({ 
+                ...repo, 
+                branches: [...repo.branches, newBranchName],
+                branch: newBranchName
+            });
+            setNewBranchName('');
+            setShowNewBranchInput(false);
+        }
+    };
+
+    const saveToSnippets = () => {
+        if (!repo || activeFileIndex === null) return;
+        
+        const currentFile = repo.files[activeFileIndex];
+        const snippet = {
+            id: Date.now().toString(),
+            title: `From Git: ${currentFile.name}`,
+            language: 'python',
+            code: fileContent,
+            category: 'Git Snippets',
+            createdAt: Date.now()
+        };
+
+        const existingSnippets = JSON.parse(localStorage.getItem('pycom_snippets') || '[]');
+        localStorage.setItem('pycom_snippets', JSON.stringify([snippet, ...existingSnippets]));
+        alert('File saved to Snippet Library!');
     };
 
     if (!repo) {
@@ -146,14 +186,56 @@ const GitManager: React.FC = () => {
     return (
         <div className="h-[calc(100vh-200px)] flex flex-col bg-gray-900 rounded-xl border border-gray-700 overflow-hidden">
             {/* Header */}
-            <div className="bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center">
-                <div className="flex items-center gap-4">
-                    <h2 className="font-bold text-white text-lg">{repo.name}</h2>
-                    <span className="flex items-center gap-1 text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded-full font-mono">
-                        <GitBranchIcon className="w-3 h-3" /> {repo.branch}
-                    </span>
+            <div className="bg-gray-800 p-4 border-b border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="flex items-center gap-4 w-full md:w-auto">
+                    <h2 className="font-bold text-white text-lg truncate">{repo.name}</h2>
+                    
+                    {/* Branch Selector */}
+                    <div className="relative group">
+                        <div className="flex items-center gap-1 text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded-full font-mono cursor-pointer hover:bg-gray-600 transition-colors">
+                            <GitBranchIcon className="w-3 h-3" /> 
+                            <select 
+                                value={repo.branch} 
+                                onChange={(e) => handleBranchChange(e.target.value)}
+                                className="bg-transparent outline-none appearance-none cursor-pointer pr-2"
+                            >
+                                {repo.branches.map(b => <option key={b} value={b}>{b}</option>)}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* New Branch Button */}
+                    {!showNewBranchInput ? (
+                        <button onClick={() => setShowNewBranchInput(true)} className="text-gray-400 hover:text-white" title="New Branch">
+                            <PlusIcon className="w-4 h-4" />
+                        </button>
+                    ) : (
+                        <div className="flex items-center gap-1">
+                            <input 
+                                type="text" 
+                                value={newBranchName} 
+                                onChange={(e) => setNewBranchName(e.target.value)}
+                                placeholder="Branch name" 
+                                className="bg-gray-900 text-xs text-white p-1 rounded border border-gray-600 w-24"
+                                autoFocus
+                            />
+                            <button onClick={createBranch} className="text-green-400 hover:text-green-300"><CheckCircleIcon className="w-4 h-4" /></button>
+                            <button onClick={() => setShowNewBranchInput(false)} className="text-red-400 hover:text-red-300"><span className="font-bold">×</span></button>
+                        </div>
+                    )}
                 </div>
-                <button onClick={() => setRepo(null)} className="text-red-400 text-sm hover:underline">Close Repo</button>
+
+                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <button 
+                        onClick={handlePush}
+                        disabled={isPushing || repo.commits.length === 0}
+                        className={`px-3 py-1.5 rounded text-xs font-bold flex items-center gap-2 transition-colors ${isPushing ? 'bg-blue-900/50 text-blue-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                    >
+                        {isPushing ? <span className="animate-spin h-3 w-3 border-2 border-blue-400 border-t-transparent rounded-full"></span> : <CloudArrowUpIcon className="w-4 h-4" />}
+                        Push
+                    </button>
+                    <button onClick={() => setRepo(null)} className="text-red-400 text-sm hover:underline">Close Repo</button>
+                </div>
             </div>
 
             <div className="flex-grow flex flex-col lg:flex-row overflow-hidden">
@@ -179,9 +261,21 @@ const GitManager: React.FC = () => {
 
                 {/* Editor */}
                 <div className="flex-grow flex flex-col bg-gray-900 min-w-0">
-                    <div className="bg-gray-800/30 p-2 text-xs text-gray-500 border-b border-gray-700 flex justify-between">
+                    <div className="bg-gray-800/30 p-2 text-xs text-gray-500 border-b border-gray-700 flex justify-between items-center">
                         <span>{activeFileIndex !== null ? repo.files[activeFileIndex].name : 'No file selected'}</span>
-                        <span>Python</span>
+                        <div className="flex gap-2">
+                            {activeFileIndex !== null && (
+                                <button 
+                                    onClick={saveToSnippets}
+                                    className="flex items-center gap-1 text-purple-400 hover:text-purple-300 transition-colors"
+                                    title="Save this file to Snippet Library"
+                                >
+                                    <ArrowRightOnRectangleIcon className="w-3 h-3" />
+                                    Save to Snippets
+                                </button>
+                            )}
+                            <span>Python</span>
+                        </div>
                     </div>
                     {activeFileIndex !== null ? (
                         <textarea 

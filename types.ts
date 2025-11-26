@@ -1,6 +1,6 @@
 
 
-export type Page = 'home' | 'careers' | 'gamezone' | 'lab' | 'sourcekit' | 'courses' | 'contact' | 'blog' | 'advertise' | 'agentic-ai' | 'resources' | 'partner' | 'aiml' | 'invest';
+export type Page = 'home' | 'careers' | 'gamezone' | 'lab' | 'sourcekit' | 'courses' | 'contact' | 'blog' | 'advertise' | 'agentic-ai' | 'resources' | 'partner' | 'aiml' | 'invest' | 'host';
 
 export interface PageNavigationProps {
   setActivePage: (page: Page) => void;
@@ -99,6 +99,7 @@ export interface QuizQuestion {
   question: string;
   options: string[];
   answer: string;
+  explanation?: string;
 }
 
 export interface GameTopic {
@@ -126,6 +127,9 @@ export interface Agent {
   loginId: string;
   avatarUrl: string;
   specialties: string[];
+  kpis?: string[];
+  jobDescription?: string;
+  monthlyTarget?: string;
 }
 
 export interface WorkflowStep {
@@ -223,6 +227,7 @@ export interface GitRepo {
   files: GitFile[];
   commits: GitCommit[];
   branch: string;
+  branches: string[];
 }
 
 export type LMSView = 'classroom' | 'chat' | 'files' | 'notes';
@@ -255,4 +260,43 @@ export interface Lead {
   linkedin: string;
   status: LeadStatus;
   priority: LeadPriority;
+}
+
+// Hosting Types
+export interface Deployment {
+    id: string;
+    name: string;
+    repo: string;
+    branch: string;
+    status: 'building' | 'deployed' | 'failed';
+    url?: string;
+    lastBuilt: string;
+    commitMessage: string;
+}
+
+export interface ServerInstance {
+    id: string;
+    name: string;
+    type: 'cloud' | 'local';
+    ip: string;
+    status: 'running' | 'stopped' | 'provisioning';
+    region: string;
+    mcpEnabled: boolean;
+}
+
+// Big Data Types
+export interface Dataset {
+    id: string;
+    name: string;
+    source: string;
+    rows: number;
+    columns: string[];
+}
+
+export interface BigDataQuery {
+    id: string;
+    prompt: string;
+    sql: string;
+    result: any[];
+    chartType: 'bar' | 'line' | 'pie';
 }

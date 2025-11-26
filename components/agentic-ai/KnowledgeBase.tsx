@@ -1,12 +1,14 @@
 
 import React, { useState } from 'react';
 import { KNOWLEDGE_DOCS } from '../../constants.ts';
-import { DatabaseIcon, DocumentTextIcon, CloudArrowDownIcon, PlusIcon, CheckCircleIcon, ArrowPathIcon, ClockIcon, DownloadIcon, UploadIcon } from '../Icons.tsx';
+import { DatabaseIcon, DocumentTextIcon, CloudArrowDownIcon, PlusIcon, CheckCircleIcon, ArrowPathIcon, ClockIcon, DownloadIcon, UploadIcon, SparklesIcon } from '../Icons.tsx';
 
 const KnowledgeBase: React.FC = () => {
     const [docs, setDocs] = useState(KNOWLEDGE_DOCS);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
+    const [isSynthesizing, setIsSynthesizing] = useState(false);
 
     const handleDownload = (docName: string) => {
         // Simulate download
@@ -48,6 +50,37 @@ const KnowledgeBase: React.FC = () => {
         }, 200);
     };
 
+    const handleSynthesize = () => {
+        if (selectedDocs.length === 0) return;
+        setIsSynthesizing(true);
+        
+        // Simulate synthesis process
+        setTimeout(() => {
+            setIsSynthesizing(false);
+            const reportContent = `# AI Synthesis Report\n\nBased on ${selectedDocs.length} documents analyzed:\n\n## Executive Summary\nThis report synthesizes key findings from the selected knowledge base assets. Trends indicate strong growth in Q1 with increasing technical debt in legacy systems.\n\n## Key Insights\n- Revenue up 15% (Source: CSV)\n- Brand consistency improved (Source: PDF)\n\n## Recommendations\nFocus on optimizing database queries and expanding the sales pipeline.`;
+            
+            const blob = new Blob([reportContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `AI_Research_Report_${Date.now()}.md`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            setSelectedDocs([]);
+        }, 3000);
+    };
+
+    const toggleDocSelection = (id: string) => {
+        if (selectedDocs.includes(id)) {
+            setSelectedDocs(selectedDocs.filter(d => d !== id));
+        } else {
+            setSelectedDocs([...selectedDocs, id]);
+        }
+    };
+
     const getStatusBadge = (status: string) => {
         switch(status) {
             case 'indexed': return <span className="flex items-center gap-1 text-green-400 text-xs font-bold bg-green-900/30 px-2 py-1 rounded border border-green-500/20"><CheckCircleIcon className="w-3 h-3" /> Indexed</span>;
@@ -66,14 +99,26 @@ const KnowledgeBase: React.FC = () => {
                     </h2>
                     <p className="text-slate-400 text-sm mt-1">RAG (Retrieval-Augmented Generation) Context Store</p>
                 </div>
-                <button 
-                    onClick={handleUpload}
-                    disabled={isUploading}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {isUploading ? <ArrowPathIcon className="w-5 h-5 animate-spin" /> : <PlusIcon className="w-5 h-5" />}
-                    {isUploading ? 'Uploading...' : 'Upload Document'}
-                </button>
+                <div className="flex gap-3">
+                    {selectedDocs.length > 0 && (
+                        <button 
+                            onClick={handleSynthesize}
+                            disabled={isSynthesizing}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-50 animate-pop-in"
+                        >
+                            {isSynthesizing ? <SparklesIcon className="w-5 h-5 animate-spin" /> : <SparklesIcon className="w-5 h-5" />}
+                            {isSynthesizing ? 'Synthesizing...' : `Synthesize Report (${selectedDocs.length})`}
+                        </button>
+                    )}
+                    <button 
+                        onClick={handleUpload}
+                        disabled={isUploading}
+                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isUploading ? <ArrowPathIcon className="w-5 h-5 animate-spin" /> : <PlusIcon className="w-5 h-5" />}
+                        {isUploading ? 'Uploading...' : 'Upload Document'}
+                    </button>
+                </div>
             </div>
 
             <div className="flex-grow p-6 overflow-y-auto relative">
@@ -88,8 +133,19 @@ const KnowledgeBase: React.FC = () => {
                 
                 <div className="grid grid-cols-1 gap-4">
                     {docs.map(doc => (
-                        <div key={doc.id} className="bg-slate-900 p-4 rounded-xl border border-slate-800 flex items-center justify-between hover:border-purple-500/50 transition-colors group">
+                        <div 
+                            key={doc.id} 
+                            onClick={() => toggleDocSelection(doc.id)}
+                            className={`p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-colors group ${
+                                selectedDocs.includes(doc.id) 
+                                ? 'bg-indigo-900/20 border-indigo-500' 
+                                : 'bg-slate-900 border-slate-800 hover:border-purple-500/50'
+                            }`}
+                        >
                             <div className="flex items-center gap-4">
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${selectedDocs.includes(doc.id) ? 'bg-indigo-500 border-indigo-500' : 'border-slate-600'}`}>
+                                    {selectedDocs.includes(doc.id) && <CheckCircleIcon className="w-4 h-4 text-white" />}
+                                </div>
                                 <div className="bg-slate-800 p-3 rounded-lg">
                                     <DocumentTextIcon className="w-6 h-6 text-blue-400" />
                                 </div>
@@ -104,7 +160,7 @@ const KnowledgeBase: React.FC = () => {
                                     {getStatusBadge(doc.status)}
                                 </div>
                                 <button 
-                                    onClick={() => handleDownload(doc.name)}
+                                    onClick={(e) => { e.stopPropagation(); handleDownload(doc.name); }}
                                     className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors group-hover:bg-slate-800"
                                     title="Download"
                                 >

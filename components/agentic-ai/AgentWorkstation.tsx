@@ -4,20 +4,21 @@ import type { Agent, AgentWorkflow, WorkflowTemplate } from '../../types.ts';
 import { AGENT_WORKFLOWS } from '../../constants.ts';
 import { 
     RobotIcon, CogIcon, PlayIcon, CheckCircleIcon, ArrowRightOnRectangleIcon, 
-    PlusIcon, LinkIcon, DatabaseIcon, CubeIcon, DownloadIcon, ArrowPathIcon
+    PlusIcon, LinkIcon, DatabaseIcon, CubeIcon, DownloadIcon, ArrowPathIcon, TableCellsIcon
 } from '../Icons.tsx';
 import IntegrationsModal from './IntegrationsModal.tsx';
 import AutoPilot from './AutoPilot.tsx';
 import MCPServer from './MCPServer.tsx';
 import KnowledgeBase from './KnowledgeBase.tsx';
 import AgentSettings from './AgentSettings.tsx';
+import BigDataTool from './BigDataTool.tsx';
 
 interface AgentWorkstationProps {
     agent: Agent;
     onLogout: () => void;
 }
 
-type View = 'dashboard' | 'mcp' | 'autopilot' | 'knowledge' | 'settings';
+type View = 'dashboard' | 'mcp' | 'autopilot' | 'knowledge' | 'settings' | 'bigdata';
 
 const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) => {
     const [activeView, setActiveView] = useState<View>('dashboard');
@@ -52,8 +53,6 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
 
     const handleDeployTemplate = (template: WorkflowTemplate) => {
         setActiveWorkflowName(template.title);
-        // Generate mock steps based on template complexity for simulation
-        // In a real app, these would be fetched from the template definition
         const actions = [
             "Initializing Context Vector Store",
             "Authenticating with External APIs",
@@ -212,6 +211,7 @@ ${artifacts.map(a => `- ${a.name}`).join('\n')}
                     <div className="space-y-2">
                         <NavButton view="dashboard" icon={<RobotIcon className="w-5 h-5" />} label="Workstation Dashboard" />
                         <NavButton view="mcp" icon={<CubeIcon className="w-5 h-5" />} label="MCP Server" />
+                        <NavButton view="bigdata" icon={<TableCellsIcon className="w-5 h-5" />} label="Big Data Studio" />
                         <NavButton view="autopilot" icon={<PlayIcon className="w-5 h-5" />} label="Auto-Pilot Library" />
                         <NavButton view="knowledge" icon={<DatabaseIcon className="w-5 h-5" />} label="Knowledge Base" />
                         <NavButton view="settings" icon={<CogIcon className="w-5 h-5" />} label="Agent Settings" />
@@ -333,6 +333,7 @@ ${artifacts.map(a => `- ${a.name}`).join('\n')}
                     )}
 
                     {activeView === 'mcp' && <MCPServer />}
+                    {activeView === 'bigdata' && <BigDataTool />}
                     {activeView === 'autopilot' && <AutoPilot onDeploy={handleDeployTemplate} />}
                     {activeView === 'knowledge' && <KnowledgeBase />}
                     {activeView === 'settings' && <AgentSettings />}
