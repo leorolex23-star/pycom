@@ -1,0 +1,258 @@
+
+
+export type Page = 'home' | 'careers' | 'gamezone' | 'lab' | 'sourcekit' | 'courses' | 'contact' | 'blog' | 'advertise' | 'agentic-ai' | 'resources' | 'partner' | 'aiml' | 'invest';
+
+export interface PageNavigationProps {
+  setActivePage: (page: Page) => void;
+}
+
+export type DifficultyLevel = 'Easy' | 'Medium' | 'Hard';
+export type GameStatus = 'Not Started' | 'In Progress' | 'Completed';
+
+export interface Dilemma {
+  problem: string;
+  options: string[];
+  answer: string;
+  explanation: string;
+}
+
+export interface CareerPath {
+  id: string;
+  title: string;
+  subtitle: string;
+  illustrationUrl: string;
+  description: string;
+  responsibilities: string[];
+  averageSalary: string;
+  tools: string[];
+}
+
+interface GroundingSource {
+  uri?: string;
+  title?: string;
+}
+
+interface MapsSource extends GroundingSource {
+    placeAnswerSources?: {
+        reviewSnippets?: any[];
+    }
+}
+
+export interface GroundingChunk {
+  web?: GroundingSource;
+  maps?: MapsSource;
+}
+
+export interface PioneerContact {
+  role: string;
+  name: string;
+  description?: string;
+  email: string;
+  phone?: string;
+  url?: string;
+  actions?: ('enquiry' | 'contact')[];
+}
+
+export interface BlogPost {
+  id: number;
+  title: string;
+  summary: string;
+  content: string;
+  author: string;
+  date: string;
+  imageUrl: string;
+  tags: string[];
+  readTime: string;
+  wordCount: number;
+}
+
+export interface AdPricing {
+  type: string;
+  description: string;
+  inr: string;
+  usd: string;
+  eur: string;
+}
+
+export interface Sponsorship {
+  title:string;
+  description: string;
+  cta: string;
+}
+
+export interface PartnerOffer {
+  partner: string;
+  title: string;
+  description: string;
+  cta: string;
+}
+
+export interface Course {
+  title: string;
+  description: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  duration: string;
+  isAiPowered: boolean;
+}
+
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  answer: string;
+}
+
+export interface GameTopic {
+  id: string;
+  title: string;
+  description: string;
+  gameType: 'quiz';
+  questions: QuizQuestion[];
+}
+
+export interface GameCategory {
+  id: string;
+  title: string;
+  description: string;
+  topics: GameTopic[];
+}
+
+// Agentic AI Types
+export type AgentRole = 'CEO' | 'Sales Director' | 'Social Media' | 'SEO Expert' | 'Business Consultant';
+
+export interface Agent {
+  id: string;
+  name: string;
+  role: AgentRole;
+  loginId: string;
+  avatarUrl: string;
+  specialties: string[];
+}
+
+export interface WorkflowStep {
+    id: number;
+    action: string;
+    tool: string; // e.g., "LinkedIn Sales Nav", "Google Ads", "SEMRush"
+    duration: number; // ms to simulate
+    outputDescription: string;
+}
+
+export interface AgentWorkflow {
+    agentId: string;
+    name: string;
+    description: string;
+    steps: WorkflowStep[];
+    requiredIntegrations: ('Google' | 'Microsoft' | 'HubSpot' | 'LinkedIn')[];
+}
+
+export interface ActivityLog {
+    id: number;
+    timestamp: Date;
+    agentId: string;
+    description: string;
+    type: 'info' | 'success' | 'error' | 'action';
+}
+
+export interface WorkflowTemplate {
+    id: string;
+    title: string;
+    category: 'Sales' | 'Marketing' | 'Strategy' | 'Technical' | 'Operations';
+    description: string;
+    complexity: 'Low' | 'Medium' | 'High';
+    steps: number;
+}
+
+export interface MCPConnection {
+    id: string;
+    name: string;
+    status: 'connected' | 'disconnected' | 'error';
+    type: 'database' | 'api' | 'filesystem';
+    latency: string;
+}
+
+export interface KnowledgeDocument {
+    id: string;
+    name: string;
+    type: 'pdf' | 'csv' | 'txt';
+    size: string;
+    status: 'indexed' | 'processing' | 'pending';
+}
+
+export interface Timezone {
+    label: string;
+    timezone: string;
+}
+
+export interface HFLessonStep {
+    id: string;
+    title: string;
+    teachContent: string;
+    practiceQuestion: string;
+    options: string[];
+    correctAnswer: string;
+    logOutput: string[];
+    codeSnippet?: string;
+}
+
+export interface CodeSnippet {
+    id: string;
+    title: string;
+    language: 'python' | 'javascript' | 'html' | 'css' | 'sql' | 'bash';
+    code: string;
+    category: string;
+    createdAt: number;
+}
+
+export interface GitFile {
+  name: string;
+  content: string;
+  originalContent: string;
+  status: 'unmodified' | 'modified';
+}
+
+export interface GitCommit {
+  id: string;
+  message: string;
+  timestamp: number;
+  author: string;
+  changes: string[];
+}
+
+export interface GitRepo {
+  url: string;
+  name: string;
+  files: GitFile[];
+  commits: GitCommit[];
+  branch: string;
+}
+
+export type LMSView = 'classroom' | 'chat' | 'files' | 'notes';
+
+export interface LMSFile {
+    id: string;
+    name: string;
+    type: 'pdf' | 'code' | 'image';
+    size: string;
+    date: string;
+}
+
+export interface LMSNote {
+    id: string;
+    title: string;
+    content: string;
+    timestamp: Date;
+    isImportant: boolean;
+}
+
+// Lead Management Types
+export type LeadPriority = 'High' | 'Medium' | 'Low';
+export type LeadStatus = 'Research' | 'Identify' | 'Formatting' | 'Outreach' | 'Pipeline' | 'Lead Filtering' | 'Email' | 'Follow-up' | 'Closure';
+
+export interface Lead {
+  id: string;
+  name: string;
+  company: string;
+  email: string;
+  linkedin: string;
+  status: LeadStatus;
+  priority: LeadPriority;
+}
