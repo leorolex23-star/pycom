@@ -202,6 +202,7 @@ export const AGENTS: Agent[] = [
         id: 'jeyabal', 
         name: 'Jeyabal Anthony', 
         role: 'CEO', 
+        email: 'jeyabal.anthony@pycom.com',
         loginId: 'JA-CEO-AI', 
         avatarUrl: '/assets/avatars/jeyabal.png',
         specialties: ['Investor Relations', 'Partnership Strategy', 'Fundraising'],
@@ -213,141 +214,165 @@ export const AGENTS: Agent[] = [
         id: 'billy', 
         name: 'Billy Jay', 
         role: 'Sales Director', 
+        email: 'billy.jay@pycom.com',
         loginId: 'BJ-SALES-AI', 
         avatarUrl: '/assets/avatars/billy.png',
         specialties: ['Cold Outreach', 'Lead Qualification', 'Closing'],
         jobDescription: "Drive revenue growth by managing the entire sales lifecycle, from prospecting high-value leads to closing enterprise licensing deals. Optimize the sales funnel for maximum conversion.",
         kpis: ["MRR Growth %", "Sales Qualified Leads (SQLs)", "Demo-to-Close Rate", "Average Deal Size"],
-        monthlyTarget: "$50k Net New ARR"
+        monthlyTarget: "$50k Net New ARR",
+        reportsTo: 'jeyabal'
     },
     { 
         id: 'maya', 
         name: 'Maya Patel', 
         role: 'HR Manager', 
+        email: 'maya.patel@pycom.com',
         loginId: 'MP-HR-AI', 
         avatarUrl: '',
         specialties: ['Talent Acquisition', 'Employee Relations', 'Culture'],
         jobDescription: "Manage the full employee lifecycle, from recruiting top tech talent to fostering a high-performance culture. Ensure compliance and drive employee engagement initiatives.",
         kpis: ["Time to Hire", "Employee Net Promoter Score (eNPS)", "Retention Rate", "Training Completion %"],
         monthlyTarget: "Onboard 5 Senior Engineers",
-        joinDate: "Nov 25, 2025"
+        joinDate: "Nov 25, 2025",
+        reportsTo: 'jeyabal'
     },
     { 
         id: 'leo', 
         name: 'Leo Das', 
         role: 'Data Scientist', 
+        email: 'leo.das@pycom.com',
         loginId: 'LD-DS-AI', 
         avatarUrl: '',
         specialties: ['Predictive Modeling', 'Deep Learning', 'Data Visualization'],
         jobDescription: "Uncover insights and build intelligent systems. Design and implement machine learning models to solve complex business problems and optimize platform features.",
         kpis: ["Model Accuracy", "Insight Time-to-Delivery", "Algorithm Efficiency", "Data Quality Score"],
         monthlyTarget: "Deploy 2 New Predictive Models",
-        joinDate: "Nov 25, 2025"
+        joinDate: "Nov 25, 2025",
+        reportsTo: 'jeyabal'
     },
     { 
         id: 'kai', 
         name: 'Kai Sato', 
         role: 'Backend Developer', 
+        email: 'kai.sato@pycom.com',
         loginId: 'KS-BE-AI', 
         avatarUrl: '',
         specialties: ['API Design', 'Database Optimization', 'Scalable Architecture'],
         jobDescription: "Power the server-side of web applications. Architect and maintain robust microservices, ensure high availability, and optimize database performance.",
         kpis: ["API Latency", "Uptime", "Bug Resolution Time", "Code Coverage"],
         monthlyTarget: "Migrate Core Service to AsyncIO",
-        joinDate: "Nov 25, 2025"
+        joinDate: "Nov 25, 2025",
+        reportsTo: 'jeyabal'
     },
     { 
         id: 'alex', 
         name: 'Alex Rivera', 
         role: 'DevOps Engineer', 
+        email: 'alex.rivera@pycom.com',
         loginId: 'AR-OPS-AI', 
         avatarUrl: '',
         specialties: ['CI/CD Automation', 'Cloud Infrastructure', 'Security'],
         jobDescription: "Automate infrastructure and streamline development. Maintain CI/CD pipelines, manage cloud resources, and ensure system reliability and security.",
         kpis: ["Deployment Frequency", "Mean Time to Recovery (MTTR)", "Infrastructure Cost Savings", "Security Audit Score"],
         monthlyTarget: "Reduce Build Time by 40%",
-        joinDate: "Nov 25, 2025"
+        joinDate: "Nov 25, 2025",
+        reportsTo: 'kai'
     },
     { 
         id: 'emma', 
         name: 'Emma Wright', 
         role: 'Software Engineer', 
+        email: 'emma.wright@pycom.com',
         loginId: 'EW-SWE-AI', 
         avatarUrl: '',
         specialties: ['Full Stack Development', 'Code Quality', 'System Design'],
         jobDescription: "Build robust and scalable software applications. Write clean, maintainable code for new features and improve existing system architecture.",
         kpis: ["Feature Delivery Velocity", "Technical Debt Reduction", "Code Review Turnaround", "Sprint Completion %"],
         monthlyTarget: "Ship 3 Major Features",
-        joinDate: "Nov 25, 2025"
+        joinDate: "Nov 25, 2025",
+        reportsTo: 'kai'
     },
     { 
         id: 'priya', 
         name: 'Priya Sharma', 
         role: 'QA Automation', 
+        email: 'priya.sharma@pycom.com',
         loginId: 'PS-QA-AI', 
         avatarUrl: '',
         specialties: ['Test Automation', 'Regression Testing', 'Performance Testing'],
         jobDescription: "Ensure software quality through automated testing. Develop comprehensive test suites to catch bugs early and ensure a flawless user experience.",
         kpis: ["Test Coverage %", "Defect Leakage Rate", "Automation ROI", "Release Quality Score"],
         monthlyTarget: "Automate 90% of Regression Suite",
-        joinDate: "Nov 25, 2025"
+        joinDate: "Nov 25, 2025",
+        reportsTo: 'kai'
     },
     { 
         id: 'sam', 
         name: 'Sam Wilson', 
         role: 'Data Analyst', 
+        email: 'sam.wilson@pycom.com',
         loginId: 'SW-DA-AI', 
         avatarUrl: '',
         specialties: ['Business Intelligence', 'SQL', 'Reporting'],
         jobDescription: "Translate data into actionable business insights. Create dashboards and reports to track KPIs and support data-driven decision making across teams.",
         kpis: ["Report Usage Rate", "Data Accuracy", "Query Performance", "Stakeholder Satisfaction"],
         monthlyTarget: "Revamp Executive Dashboard",
-        joinDate: "Nov 25, 2025"
+        joinDate: "Nov 25, 2025",
+        reportsTo: 'leo'
     },
     { 
         id: 'aris', 
         name: 'Dr. Aris Thorne', 
         role: 'AI Researcher', 
+        email: 'aris.thorne@pycom.com',
         loginId: 'AT-RES-AI', 
         avatarUrl: '',
         specialties: ['NLP', 'Generative AI', 'Model Fine-Tuning'],
         jobDescription: "Push the boundaries of artificial intelligence. Research state-of-the-art algorithms and develop novel AI capabilities for the PyCom platform.",
         kpis: ["Research Paper Submissions", "Patent Applications", "Model Benchmark Scores", "Innovation Index"],
         monthlyTarget: "Fine-tune Gemini for Code Edits",
-        joinDate: "Nov 25, 2025"
+        joinDate: "Nov 25, 2025",
+        reportsTo: 'jeyabal'
     },
     { 
         id: 'ginu', 
         name: 'Ginu Joseph', 
         role: 'Business Consultant', 
+        email: 'ginu.joseph@pycom.com',
         loginId: 'GJ-BIZ-AI', 
         avatarUrl: '/assets/avatars/ginu.png',
         specialties: ['Market Research', 'Competitive Analysis', 'B2B Strategy'],
         jobDescription: "Provide deep market intelligence and strategic recommendations to position PyCom as a leader in the EdTech space. Identify new revenue streams and optimize operational efficiency.",
         kpis: ["Market Reports Delivered", "Strategy Implementation Rate", "Client Retention Rate", "Competitive Win Rate"],
-        monthlyTarget: "4 Market Entry Strategies"
+        monthlyTarget: "4 Market Entry Strategies",
+        reportsTo: 'jeyabal'
     },
     { 
         id: 'suresh', 
         name: 'Suresh Kumar', 
         role: 'Social Media', 
+        email: 'suresh.kumar@pycom.com',
         loginId: 'SK-SOCIAL-AI', 
         avatarUrl: '/assets/avatars/suresh.png',
         specialties: ['Viral Content', 'Ad Optimization', 'Community Growth'],
         jobDescription: "Amplify PyCom's brand presence across all digital channels. Create viral content strategies, manage paid ad campaigns, and foster a vibrant community of Python learners.",
         kpis: ["Total Engagement Rate", "Follower Growth", "Ad ROAS", "Click-Through Rate (CTR)"],
-        monthlyTarget: "100k Impressions & 20% Engagement Lift"
+        monthlyTarget: "100k Impressions & 20% Engagement Lift",
+        reportsTo: 'jeyabal'
     },
     { 
         id: 'tony', 
         name: 'Tony Robert', 
         role: 'SEO Expert', 
+        email: 'tony.robert@pycom.com',
         loginId: 'TR-SEO-AI', 
         avatarUrl: '/assets/avatars/tony.png',
         specialties: ['Keyword Ranking', 'Site Audits', 'Backlink Strategy'],
         jobDescription: "Master the organic search landscape. Optimize PyCom's technical SEO and content strategy to dominate high-intent keywords and drive sustainable, low-cost traffic.",
         kpis: ["Organic Traffic Growth", "Keyword Rankings (Top 3)", "Domain Authority Score", "Backlink Velocity"],
-        monthlyTarget: "Rank #1 for 5 High-Intent Keywords"
+        monthlyTarget: "Rank #1 for 5 High-Intent Keywords",
+        reportsTo: 'jeyabal'
     },
 ];
 
@@ -366,15 +391,16 @@ export const AGENT_WORKFLOWS: { [key: string]: AgentWorkflow } = {
     },
     'billy': {
         agentId: 'billy',
-        name: 'Strategic Pipeline Automation',
-        description: 'End-to-end lead processing: enrichment, AI scoring, and multi-channel follow-up sequencing.',
-        requiredIntegrations: ['LinkedIn', 'HubSpot', 'Google'],
+        name: 'Automated Sales ETL Pipeline',
+        description: 'Extraction of leads from Google Maps, cleaning data with Pandas, and scoring "Hot" leads for the database.',
+        requiredIntegrations: ['Google', 'HubSpot', 'Stripe'],
         steps: [
-            { id: 1, action: 'Importing & Enriching Leads', tool: 'LinkedIn Sales Nav + Clearbit', duration: 2500, outputDescription: 'Imported 50 raw leads. Added revenue & tech stack data.' },
-            { id: 2, action: 'AI Lead Scoring', tool: 'Gemini 2.5 Pro', duration: 3000, outputDescription: 'Analyzed fit. Identified 15 "High Potential" targets (Score > 85).' },
-            { id: 3, action: 'Drafting Hyper-Personalized Hooks', tool: 'Gemini 2.5 Flash', duration: 2000, outputDescription: 'Generated icebreakers based on recent LinkedIn activity.' },
-            { id: 4, action: 'Configuring Smart Sequence', tool: 'HubSpot Workflows', duration: 1500, outputDescription: 'Scheduled: Day 1 (Email), Day 3 (LinkedIn Connect), Day 7 (Bump).' },
-            { id: 5, action: 'Launching Campaign', tool: 'Gmail API', duration: 2000, outputDescription: 'Sent 15 emails. Syncing deal stages to CRM.' }
+            { id: 1, action: 'EXTRACT: Querying Google Maps API', tool: 'Custom Scraper', duration: 3000, outputDescription: 'Extracted 100 raw records for "IT Services in Mumbai". Saved to raw_leads_staging.json.' },
+            { id: 2, action: 'TRANSFORM: Pandas Data Cleaning', tool: 'Python Script', duration: 2500, outputDescription: 'Deduplicated records. Standardized phone numbers. Removed null websites.' },
+            { id: 3, action: 'ENRICH: Lead Scoring Model', tool: 'Gemini 2.5 Flash', duration: 2500, outputDescription: 'Applied score based on rating (>4.5) and reviews (>50). Identified 12 "Hot" leads.' },
+            { id: 4, action: 'LOAD: Database Insert', tool: 'PostgreSQL Connector', duration: 2000, outputDescription: 'Inserted 48 valid leads into sales_leads table.' },
+            { id: 5, action: 'REPORTING: Generate CSV', tool: 'Pandas Export', duration: 1500, outputDescription: 'daily_sales_leads_report.csv created and ready for download.' },
+            { id: 6, action: 'SUBMIT: Email to CEO', tool: 'PyMail', duration: 1000, outputDescription: 'Sent report to jeyabal.anthony@pycom.com' }
         ]
     },
     'maya': {
@@ -386,17 +412,21 @@ export const AGENT_WORKFLOWS: { [key: string]: AgentWorkflow } = {
             { id: 1, action: 'Scanning Job Boards', tool: 'LinkedIn Recruiter', duration: 2000, outputDescription: 'Identified 30 potential candidates for Senior Dev role.' },
             { id: 2, action: 'Resume Parsing', tool: 'Gemini 2.5 Pro', duration: 2500, outputDescription: 'Ranked candidates based on skill match and experience.' },
             { id: 3, action: 'Initial Outreach', tool: 'Gmail Integration', duration: 1500, outputDescription: 'Sent personalized screening invites to top 10 candidates.' },
+            { id: 4, action: 'Report to CEO', tool: 'PyMail', duration: 1000, outputDescription: 'Sent recruitment summary to jeyabal.anthony@pycom.com' }
         ]
     },
     'leo': {
         agentId: 'leo',
-        name: 'Model Performance Audit',
-        description: 'Routine check on ML model accuracy and data drift.',
+        name: 'Churn Prediction Model Build',
+        description: 'Train and deploy a machine learning model to predict user churn.',
         requiredIntegrations: ['GitHub', 'Google'],
         steps: [
-            { id: 1, action: 'Fetching Logs', tool: 'CloudWatch API', duration: 2000, outputDescription: 'Retrieved 24h inference logs.' },
-            { id: 2, action: 'Drift Analysis', tool: 'Python Pandas', duration: 3000, outputDescription: 'Detected 2% drift in user input distribution.' },
-            { id: 3, action: 'Generating Report', tool: 'Gemini 2.5 Flash', duration: 1500, outputDescription: 'Audit report generated and saved to Knowledge Base.' },
+            { id: 1, action: 'Data Extraction', tool: 'SQL Connector', duration: 2000, outputDescription: 'Fetched 50k user records from Snowflake.' },
+            { id: 2, action: 'Feature Engineering', tool: 'Pandas', duration: 2500, outputDescription: 'Created features: days_active, avg_session_time, support_tickets.' },
+            { id: 3, action: 'Model Training', tool: 'PyTorch (GPU)', duration: 4000, outputDescription: 'Training Epoch 5/5. Loss: 0.12. Accuracy: 94%.' },
+            { id: 4, action: 'Model Evaluation', tool: 'Scikit-Learn', duration: 1500, outputDescription: 'Confusion Matrix generated. F1-Score: 0.91.' },
+            { id: 5, action: 'Model Registry', tool: 'MLFlow', duration: 1000, outputDescription: 'Model v2.4 saved to registry.' },
+            { id: 6, action: 'Notify Management', tool: 'PyMail', duration: 1000, outputDescription: 'Sent performance report to jeyabal.anthony@pycom.com' }
         ]
     },
     'kai': {
@@ -456,13 +486,15 @@ export const AGENT_WORKFLOWS: { [key: string]: AgentWorkflow } = {
     },
     'aris': {
         agentId: 'aris',
-        name: 'Literature Review Crawler',
-        description: 'Scan ArXiv for new relevant AI papers.',
+        name: 'LLM Fine-Tuning Run',
+        description: 'Fine-tune a base model on PyCom\'s coding dataset.',
         requiredIntegrations: ['Google'],
         steps: [
-            { id: 1, action: 'Scanning ArXiv', tool: 'Custom Scraper', duration: 2500, outputDescription: 'Found 12 new papers on LLM reasoning.' },
-            { id: 2, action: 'Summarizing Abstracts', tool: 'Gemini 2.5 Pro', duration: 3000, outputDescription: 'Generated summaries for top 3 relevant papers.' },
-            { id: 3, action: 'Updating Knowledge Base', tool: 'Vector DB', duration: 1500, outputDescription: 'Indexed new findings for team access.' },
+            { id: 1, action: 'Dataset Prep', tool: 'Hugging Face', duration: 2500, outputDescription: 'Loaded "pycom-code-instruct-v1" (10k samples).' },
+            { id: 2, action: 'Initializing Training', tool: 'PyTorch Trainer', duration: 2000, outputDescription: 'Config: LoRA, Rank=8, Alpha=16.' },
+            { id: 3, action: 'Training Loop', tool: 'GPU Cluster', duration: 5000, outputDescription: 'Loss dropped from 2.4 to 0.8 over 3 epochs.' },
+            { id: 4, action: 'Evaluation', tool: 'HumanEval Benchmark', duration: 2000, outputDescription: 'Pass@1 increased by 12%.' },
+            { id: 5, action: 'Report to CEO', tool: 'PyMail', duration: 1000, outputDescription: 'Research findings emailed to jeyabal.anthony@pycom.com' },
         ]
     },
     'suresh': {
@@ -472,9 +504,10 @@ export const AGENT_WORKFLOWS: { [key: string]: AgentWorkflow } = {
         requiredIntegrations: ['Google', 'LinkedIn'],
         steps: [
             { id: 1, action: 'Analyzing Trends', tool: 'Google Trends', duration: 1500, outputDescription: 'Identified trending topic: "Python vs Mojo".' },
-            { id: 2, action: 'Generating Memes', tool: 'Imagen 3', duration: 3000, outputDescription: 'Created 3 visual assets for Instagram/LinkedIn.' },
-            { id: 3, action: 'Writing Captions', tool: 'Gemini Flash', duration: 1000, outputDescription: 'Drafted engaging copy with relevant hashtags.' },
-            { id: 4, action: 'Scheduling Posts', tool: 'Buffer Integration', duration: 1000, outputDescription: 'Scheduled for peak engagement times (10 AM EST).' }
+            { id: 2, action: 'Request Keywords', tool: 'PyPing', duration: 1000, outputDescription: 'Asked Tony (SEO) for high-volume keywords.' },
+            { id: 3, action: 'Generating Memes', tool: 'Imagen 3', duration: 3000, outputDescription: 'Created 3 visual assets for Instagram/LinkedIn.' },
+            { id: 4, action: 'Writing Captions', tool: 'Gemini Flash', duration: 1000, outputDescription: 'Drafted engaging copy with relevant hashtags.' },
+            { id: 5, action: 'Scheduling Posts', tool: 'Buffer Integration', duration: 1000, outputDescription: 'Scheduled for peak engagement times (10 AM EST).' }
         ]
     },
     'tony': {
@@ -530,6 +563,8 @@ export const MCP_SERVICES: MCPConnection[] = [
     { id: '4', name: 'Slack Bot Integration', status: 'disconnected', type: 'api', latency: '--' },
     { id: '5', name: 'GitHub Repository', status: 'connected', type: 'api', latency: '120ms' },
     { id: '6', name: 'Stripe Billing', status: 'connected', type: 'api', latency: '95ms' },
+    { id: '7', name: 'PySrch Workspace API', status: 'connected', type: 'api', latency: '2ms' },
+    { id: '8', name: 'PyDrive Storage Gateway', status: 'connected', type: 'filesystem', latency: '3ms' },
 ];
 
 export const KNOWLEDGE_DOCS: KnowledgeDocument[] = [
@@ -560,6 +595,9 @@ export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     { id: 't18', title: 'Recruitment Pipeline Manager', category: 'Operations', description: 'Filters resumes and schedules screening calls.', complexity: 'Medium', steps: 5 },
     { id: 't19', title: 'Bug Bounty Triager', category: 'Technical', description: 'Validates security reports and assigns severity levels.', complexity: 'High', steps: 5 },
     { id: 't20', title: 'Newsletter Curator', category: 'Marketing', description: 'Aggregates industry news and drafts a weekly newsletter.', complexity: 'Medium', steps: 4 },
+    { id: 't21', title: "CEO's PA Automation", category: 'Operations', description: 'Manage calendar, draft emails, and prepare daily briefing.', complexity: 'High', steps: 6 },
+    { id: 't22', title: 'Voice Agent Setup', category: 'Technical', description: 'Configure Twilio + Deepgram + LLM for voice support.', complexity: 'High', steps: 8 },
+    { id: 't23', title: 'Data Mining Pipeline', category: 'Strategy', description: 'Scrape web data, clean it, and store in Vector DB.', complexity: 'Medium', steps: 5 },
     // ... Adding placeholders to simulate 100+
     ...Array.from({ length: 20 }).map((_, i) => ({
         id: `gen_sales_${i}`,

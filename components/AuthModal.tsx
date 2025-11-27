@@ -5,11 +5,12 @@ import { GoogleIcon, MobileIcon, ShieldCheckIcon, UserCircleIcon, BuildingOffice
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAuthSuccess: () => void;
 }
 
 type AuthStep = 'initial' | 'data-collection' | 'success';
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess }) => {
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
   const [step, setStep] = useState<AuthStep>('initial');
   
@@ -55,7 +56,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       // Simulate provider auth delay
       setTimeout(() => {
           setIsLoading(false);
-          setStep('data-collection');
+          if (activeTab === 'signin') {
+              // If signing in, assume data is already there, skip to success
+              setSuccessMessage('Welcome back to PyCom!');
+              setStep('success');
+              setTimeout(() => {
+                  onAuthSuccess();
+                  handleClose();
+              }, 1500);
+          } else {
+              setStep('data-collection');
+          }
       }, 1000);
   };
 
@@ -67,7 +78,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           setIsLoading(false);
           setSuccessMessage(`Welcome to PyCom, ${userData.fullName}!`);
           setStep('success');
-          setTimeout(handleClose, 2000);
+          setTimeout(() => {
+              onAuthSuccess(); // Notify parent of success
+              handleClose();
+          }, 2000);
       }, 1500);
   };
 
@@ -87,7 +101,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       setIsLoading(true);
       setTimeout(() => {
           setIsLoading(false);
-          setStep('data-collection'); // Move to data collection after OTP
+          if (activeTab === 'signin') {
+              setSuccessMessage('Mobile verification successful!');
+              setStep('success');
+              setTimeout(() => {
+                  onAuthSuccess();
+                  handleClose();
+              }, 1500);
+          } else {
+              setStep('data-collection');
+          }
       }, 1000);
   };
 

@@ -1,17 +1,20 @@
 
 import React, { useState } from 'react';
-import { BoltIcon, CodeBracketIcon, DatabaseIcon, RobotIcon, ArrowPathIcon, PuzzlePieceIcon, SparklesIcon, PlusIcon, GlobeAltIcon } from '../Icons.tsx';
+import { BoltIcon, CodeBracketIcon, DatabaseIcon, RobotIcon, ArrowPathIcon, PuzzlePieceIcon, SparklesIcon, PlusIcon, GlobeAltIcon, ChipIcon } from '../Icons.tsx';
+import IntegrationsModal from '../agentic-ai/IntegrationsModal.tsx';
 
 const VisualAutomator: React.FC = () => {
     const [nodes, setNodes] = useState([
         { id: 1, type: 'webhook', label: 'Webhook Listener', x: 50, y: 100, status: 'active' },
         { id: 2, type: 'script', label: 'Python Script', x: 300, y: 100, status: 'idle' },
-        { id: 3, type: 'ai', label: 'Gemini Agent', x: 550, y: 100, status: 'idle' },
+        { id: 3, type: 'transformer', label: 'GenAI Transformer', x: 550, y: 100, status: 'idle' },
         { id: 4, type: 'db', label: 'Postgres Insert', x: 800, y: 100, status: 'idle' },
     ]);
     const [isRunning, setIsRunning] = useState(false);
     const [prompt, setPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isIntegrationModalOpen, setIsIntegrationModalOpen] = useState(false);
+    const [showIntegrationsDropdown, setShowIntegrationsDropdown] = useState(false);
 
     const handleRun = () => {
         setIsRunning(true);
@@ -36,7 +39,7 @@ const VisualAutomator: React.FC = () => {
         setTimeout(() => {
             setNodes([
                 { id: 1, type: 'api', label: 'Fetch NASA API', x: 50, y: 150, status: 'idle' },
-                { id: 2, type: 'ai', label: 'Summarize Data', x: 300, y: 150, status: 'idle' },
+                { id: 2, type: 'transformer', label: 'Summarize Data', x: 300, y: 150, status: 'idle' },
                 { id: 3, type: 'email', label: 'Email Report', x: 550, y: 150, status: 'idle' },
             ]);
             setIsGenerating(false);
@@ -44,11 +47,21 @@ const VisualAutomator: React.FC = () => {
         }, 2000);
     };
 
+    const addNode = (type: string, label: string) => {
+        const newId = Date.now();
+        const lastNode = nodes[nodes.length - 1];
+        const newX = lastNode ? lastNode.x + 250 : 100;
+        const newY = lastNode ? lastNode.y : 100;
+        setNodes([...nodes, { id: newId, type, label, x: newX, y: newY, status: 'idle' }]);
+        setShowIntegrationsDropdown(false);
+    };
+
     const getNodeColor = (type: string) => {
         switch(type) {
             case 'webhook': return 'bg-orange-600';
             case 'script': return 'bg-blue-600';
             case 'ai': return 'bg-purple-600';
+            case 'transformer': return 'bg-indigo-600';
             case 'db': return 'bg-green-600';
             case 'api': return 'bg-teal-600';
             case 'email': return 'bg-pink-600';
@@ -61,6 +74,7 @@ const VisualAutomator: React.FC = () => {
             case 'webhook': return <BoltIcon className="w-5 h-5" />;
             case 'script': return <CodeBracketIcon className="w-5 h-5" />;
             case 'ai': return <RobotIcon className="w-5 h-5" />;
+            case 'transformer': return <ChipIcon className="w-5 h-5" />;
             case 'db': return <DatabaseIcon className="w-5 h-5" />;
             case 'api': return <GlobeAltIcon className="w-5 h-5" />;
             case 'email': return <div className="font-bold text-xs">@</div>;
@@ -70,6 +84,13 @@ const VisualAutomator: React.FC = () => {
 
     return (
         <div className="h-full flex flex-col bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
+            <IntegrationsModal 
+                isOpen={isIntegrationModalOpen} 
+                onClose={() => setIsIntegrationModalOpen(false)} 
+                onConnect={(s) => alert(`Connected ${s}`)} 
+                connectedServices={[]} 
+            />
+
             {/* Toolbar */}
             <div className="bg-slate-900 p-4 border-b border-slate-800 flex justify-between items-center">
                 <div className="flex items-center gap-4">
@@ -78,28 +99,52 @@ const VisualAutomator: React.FC = () => {
                         Workflow Automator
                     </h2>
                     <div className="h-6 w-px bg-slate-700"></div>
-                    <div className="relative group">
-                        <button className="flex items-center gap-2 text-sm text-slate-300 bg-slate-800 px-3 py-1.5 rounded hover:bg-slate-700 border border-slate-700">
+                    <div className="relative">
+                        <button 
+                            onClick={() => setShowIntegrationsDropdown(!showIntegrationsDropdown)}
+                            className="flex items-center gap-2 text-sm text-slate-300 bg-slate-800 px-3 py-1.5 rounded hover:bg-slate-700 border border-slate-700"
+                            title="Connect External Services"
+                        >
                             <PuzzlePieceIcon className="w-4 h-4 text-blue-400" />
                             Integrations
                         </button>
                         {/* Dropdown */}
-                        <div className="absolute top-full left-0 mt-2 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 p-2">
-                            <p className="text-[10px] font-bold text-slate-500 uppercase mb-2 px-2">Open Source APIs</p>
-                            <button className="w-full text-left px-3 py-2 rounded hover:bg-slate-800 text-sm text-slate-300">NASA (Free)</button>
-                            <button className="w-full text-left px-3 py-2 rounded hover:bg-slate-800 text-sm text-slate-300">OpenWeather (Free)</button>
-                            <div className="my-2 border-t border-slate-700"></div>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase mb-2 px-2">PyCom Internal</p>
-                            <button className="w-full text-left px-3 py-2 rounded hover:bg-slate-800 text-sm text-slate-300">User Auth</button>
-                            <button className="w-full text-left px-3 py-2 rounded hover:bg-slate-800 text-sm text-slate-300">Billing Events</button>
-                        </div>
+                        {showIntegrationsDropdown && (
+                            <div className="absolute top-full left-0 mt-2 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-xl z-20 p-2">
+                                <button onClick={() => setIsIntegrationModalOpen(true)} className="w-full text-left px-3 py-2 rounded hover:bg-purple-900/20 text-sm text-purple-300 mb-2 border-b border-slate-800 font-bold">
+                                    + Manage Connections
+                                </button>
+
+                                <p className="text-[10px] font-bold text-slate-500 uppercase mb-2 px-2">Open Source APIs</p>
+                                <button onClick={() => addNode('api', 'NASA API')} className="w-full text-left px-3 py-2 rounded hover:bg-slate-800 text-sm text-slate-300">NASA (Free)</button>
+                                <button onClick={() => addNode('api', 'OpenWeather')} className="w-full text-left px-3 py-2 rounded hover:bg-slate-800 text-sm text-slate-300">OpenWeather (Free)</button>
+                                
+                                <div className="my-2 border-t border-slate-700"></div>
+                                <p className="text-[10px] font-bold text-slate-500 uppercase mb-2 px-2">PySrch Workspace</p>
+                                <button onClick={() => addNode('webhook', 'On New Email')} className="w-full text-left px-3 py-2 rounded hover:bg-slate-800 text-sm text-slate-300">Trigger: New Email</button>
+                                <button onClick={() => addNode('webhook', 'On File Upload')} className="w-full text-left px-3 py-2 rounded hover:bg-slate-800 text-sm text-slate-300">Trigger: File Upload</button>
+
+                                <div className="my-2 border-t border-slate-700"></div>
+                                <p className="text-[10px] font-bold text-slate-500 uppercase mb-2 px-2">Connectors</p>
+                                <button onClick={() => addNode('api', 'Twitter/X Post')} className="w-full text-left px-3 py-2 rounded hover:bg-slate-800 text-sm text-slate-300">Twitter/X</button>
+                                <button onClick={() => addNode('api', 'Twilio SMS')} className="w-full text-left px-3 py-2 rounded hover:bg-slate-800 text-sm text-slate-300">Twilio</button>
+                            </div>
+                        )}
                     </div>
                 </div>
                 
                 <div className="flex gap-2">
                     <button 
-                        onClick={() => setNodes([...nodes, { id: Date.now(), type: 'script', label: 'New Node', x: 100, y: 100, status: 'idle' }])}
+                        onClick={() => addNode('transformer', 'GenAI Transformer')}
+                        className="bg-indigo-900/50 text-indigo-300 p-2 rounded-lg hover:bg-indigo-800/50 border border-indigo-500/30"
+                        title="Add Transformer Node"
+                    >
+                        <ChipIcon className="w-5 h-5" />
+                    </button>
+                    <button 
+                        onClick={() => addNode('script', 'Python Script')}
                         className="bg-slate-800 text-white p-2 rounded-lg hover:bg-slate-700 border border-slate-700"
+                        title="Add Python Script Node"
                     >
                         <PlusIcon className="w-5 h-5" />
                     </button>
@@ -107,6 +152,7 @@ const VisualAutomator: React.FC = () => {
                         onClick={handleRun} 
                         disabled={isRunning}
                         className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-colors"
+                        title="Execute current workflow"
                     >
                         {isRunning ? <ArrowPathIcon className="w-4 h-4 animate-spin" /> : <BoltIcon className="w-4 h-4" />}
                         {isRunning ? 'Executing...' : 'Test Workflow'}
@@ -115,7 +161,7 @@ const VisualAutomator: React.FC = () => {
             </div>
             
             {/* Canvas */}
-            <div className="flex-grow bg-slate-950 relative overflow-hidden">
+            <div className="flex-grow bg-slate-950 relative overflow-hidden" onClick={() => setShowIntegrationsDropdown(false)}>
                 {/* Grid Background */}
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
                 <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(#334155 1px, transparent 1px)', backgroundSize: '20px 20px', opacity: 0.2 }}></div>
@@ -148,6 +194,7 @@ const VisualAutomator: React.FC = () => {
                             'border-slate-700 bg-slate-900'
                         }`}
                         style={{ left: node.x, top: node.y }}
+                        title={`Node: ${node.label}`}
                     >
                         <div className="flex items-center gap-3 mb-2">
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white ${getNodeColor(node.type)}`}>
@@ -178,7 +225,7 @@ const VisualAutomator: React.FC = () => {
                         type="text" 
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
-                        placeholder="Describe a workflow... e.g., 'Fetch data from NASA API and email me a summary'"
+                        placeholder="Describe a workflow... e.g., 'When I get a new PyMail, save attachment to PyDrive'"
                         className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-12 pr-32 text-white focus:outline-none focus:border-purple-500 shadow-lg"
                         disabled={isGenerating}
                     />
@@ -186,6 +233,7 @@ const VisualAutomator: React.FC = () => {
                         type="submit" 
                         disabled={isGenerating || !prompt}
                         className="absolute right-2 top-1/2 -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-colors disabled:opacity-50"
+                        title="Generate flow with AI"
                     >
                         {isGenerating ? 'Building...' : 'Generate'}
                     </button>

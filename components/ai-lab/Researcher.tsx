@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { groundedSearch, complexReasoning } from '../../services/geminiLabService.ts';
 // Fix: Add .ts extension to module path
 import type { GroundingChunk } from '../../types.ts';
+import { DownloadIcon } from '../Icons.tsx';
 
 type ResearchTool = 'deep-dive' | 'web-search' | 'map-search';
 
@@ -50,6 +51,20 @@ const Researcher: React.FC = () => {
         }
     };
     
+    const handleDownloadReport = () => {
+        if (!result) return;
+        const content = `# Research Report: ${prompt}\n\n${result}\n\n## Sources\n${chunks.map(c => `- ${c.web?.title || c.maps?.title}: ${c.web?.uri || c.maps?.uri}`).join('\n')}`;
+        const blob = new Blob([content], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Research_${Date.now()}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+    
     const placeholders = {
         'deep-dive': 'Ask a complex question requiring deep reasoning...\ne.g., "Explain the architectural differences between Django and Flask and when to use each."',
         'web-search': 'Ask about recent events or up-to-date information...\ne.g., "Who won the most recent Python Software Foundation Community Service Award?"',
@@ -80,7 +95,17 @@ const Researcher: React.FC = () => {
             {error && <p className="text-red-400 text-center mt-4">{error}</p>}
             
             {(isLoading || result) && (
-                <div className="mt-6 p-4 bg-gray-900/50 rounded-lg">
+                <div className="mt-6 p-4 bg-gray-900/50 rounded-lg relative">
+                    {result && (
+                        <button 
+                            onClick={handleDownloadReport}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-800"
+                            title="Download Report"
+                        >
+                            <DownloadIcon className="w-5 h-5" />
+                        </button>
+                    )}
+                    
                     {isLoading && !result && <div className="text-center animate-pulse">Thinking...</div>}
                     {result && <p className="text-gray-300 whitespace-pre-wrap">{result}</p>}
 

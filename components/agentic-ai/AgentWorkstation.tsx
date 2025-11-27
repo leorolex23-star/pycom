@@ -4,7 +4,7 @@ import type { Agent, AgentWorkflow, WorkflowTemplate } from '../../types.ts';
 import { AGENT_WORKFLOWS } from '../../constants.ts';
 import { 
     RobotIcon, CogIcon, PlayIcon, CheckCircleIcon, ArrowRightOnRectangleIcon, 
-    PlusIcon, LinkIcon, DatabaseIcon, CubeIcon, DownloadIcon, ArrowPathIcon, TableCellsIcon
+    PlusIcon, LinkIcon, DatabaseIcon, CubeIcon, DownloadIcon, ArrowPathIcon, TableCellsIcon, CodeBracketIcon, SparklesIcon, ClockIcon, DocumentIcon
 } from '../Icons.tsx';
 import IntegrationsModal from './IntegrationsModal.tsx';
 import AutoPilot from './AutoPilot.tsx';
@@ -12,13 +12,111 @@ import MCPServer from './MCPServer.tsx';
 import KnowledgeBase from './KnowledgeBase.tsx';
 import AgentSettings from './AgentSettings.tsx';
 import BigDataTool from './BigDataTool.tsx';
+import AgentIDE from './AgentIDE.tsx';
+import { GoogleGenAI, Chat } from '@google/genai';
 
 interface AgentWorkstationProps {
     agent: Agent;
     onLogout: () => void;
 }
 
-type View = 'dashboard' | 'mcp' | 'autopilot' | 'knowledge' | 'settings' | 'bigdata';
+type View = 'dashboard' | 'mcp' | 'autopilot' | 'knowledge' | 'settings' | 'bigdata' | 'ide';
+
+// Inner Chat Interface for the Dashboard View
+const DashboardChat: React.FC<{ agent: Agent, logs: string[] }> = ({ agent, logs }) => {
+    const [chat, setChat] = useState<Chat | null>(null);
+    const [messages, setMessages] = useState<{role: 'user' | 'model', text: string}[]>([]);
+    const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const endRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (process.env.API_KEY) {
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const newChat = ai.chats.create({
+                model: 'gemini-2.5-flash',
+                config: {
+                    systemInstruction: `You are the AI Assistant for ${agent.name}. 
+                    You have access to the system logs. 
+                    When a workflow starts or finishes, acknowledge it enthusiastically.`
+                }
+            });
+            setChat(newChat);
+            setMessages([{ role: 'model', text: `System Online. I am ready to assist you, ${agent.name}.` }]);
+        } else {
+            setMessages([{ role: 'model', text: `System Online (Offline Mode). I am ready to assist you, ${agent.name}.` }]);
+        }
+    }, [agent]);
+
+    // React to system logs
+    useEffect(() => {
+        if (logs.length > 0) {
+            const lastLog = logs[0]; // Newest log
+            // Only react if chat is available OR just simulating logic
+            if (lastLog.includes('WORKFLOW COMPLETE')) {
+                setMessages(prev => [...prev, { role: 'model', text: "🎉 Workflow completed successfully! The artifacts are ready for download." }]);
+            } else if (lastLog.includes('Initializing')) {
+                setMessages(prev => [...prev, { role: 'model', text: "🚀 Starting automation sequence. Connecting to MCP tools..." }]);
+            }
+        }
+    }, [logs]);
+
+    const handleSend = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!input.trim()) return;
+        
+        const userText = input;
+        setInput('');
+        setMessages(prev => [...prev, { role: 'user', text: userText }]);
+        setIsLoading(true);
+
+        try {
+            if (chat) {
+                const res = await chat.sendMessage({ message: userText });
+                setMessages(prev => [...prev, { role: 'model', text: res.text || '' }]);
+            } else {
+                // Offline Fallback
+                setTimeout(() => {
+                    setMessages(prev => [...prev, { role: 'model', text: "I am operating in offline mode. I can see your request but cannot access the LLM for a dynamic response. Please check your API configuration." }]);
+                }, 500);
+            }
+        } catch (e) {
+            setMessages(prev => [...prev, { role: 'model', text: "Connection error." }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+    return (
+        <div className="flex flex-col h-full bg-gray-900/50 rounded-xl border border-slate-800">
+            <div className="p-3 border-b border-slate-800 bg-slate-900 rounded-t-xl flex items-center gap-2">
+                <SparklesIcon className="w-4 h-4 text-purple-400" />
+                <span className="font-bold text-white text-sm">AI Assistant</span>
+            </div>
+            <div className="flex-grow p-4 overflow-y-auto space-y-3">
+                {messages.map((m, i) => (
+                    <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[85%] p-2 rounded-lg text-sm ${m.role === 'user' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300'}`}>
+                            {m.text}
+                        </div>
+                    </div>
+                ))}
+                {isLoading && <div className="text-slate-500 text-xs animate-pulse">Thinking...</div>}
+                <div ref={endRef} />
+            </div>
+            <form onSubmit={handleSend} className="p-3 border-t border-slate-800 bg-slate-900 rounded-b-xl">
+                <input 
+                    className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+                    placeholder="Chat with agent..."
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                />
+            </form>
+        </div>
+    );
+};
 
 const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) => {
     const [activeView, setActiveView] = useState<View>('dashboard');
@@ -29,11 +127,24 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
     const [workflowStatus, setWorkflowStatus] = useState<'idle' | 'initializing' | 'running' | 'completed'>('idle');
     const [currentStepIndex, setCurrentStepIndex] = useState(-1);
     const [logs, setLogs] = useState<string[]>([]);
-    const [artifacts, setArtifacts] = useState<{name: string, type: string}[]>([]);
+    const [artifacts, setArtifacts] = useState<{name: string, type: string, content?: any}[]>([]);
     const [activeWorkflowName, setActiveWorkflowName] = useState<string>(AGENT_WORKFLOWS[agent.id]?.name || 'Default Workflow');
     const [workflowSteps, setWorkflowSteps] = useState(AGENT_WORKFLOWS[agent.id]?.steps || []);
+    const [isContinuousMode, setIsContinuousMode] = useState(false);
     
     const logContainerRef = useRef<HTMLDivElement>(null);
+
+    // Auto-connect required tools on mount
+    useEffect(() => {
+        const required = AGENT_WORKFLOWS[agent.id]?.requiredIntegrations || [];
+        if (required.length > 0) {
+            // Simulate cloud handshake
+            setTimeout(() => {
+                setConnectedServices(required);
+                addLog(`[SYSTEM] Auto-connected required tools: ${required.join(', ')}`, 'success');
+            }, 1000);
+        }
+    }, [agent.id]);
 
     useEffect(() => {
         if (logContainerRef.current) {
@@ -53,28 +164,17 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
 
     const handleDeployTemplate = (template: WorkflowTemplate) => {
         setActiveWorkflowName(template.title);
-        const actions = [
-            "Initializing Context Vector Store",
-            "Authenticating with External APIs",
-            "Scraping Data Source A",
-            "Normalizing Data Schema",
-            "Generating Intermediate Embeddings",
-            "Synthesizing Report Draft",
-            "Finalizing Artifact Output",
-            "Cleaning Up Temp Files"
-        ];
-        
+        // Generate dummy steps based on template
         const newSteps = Array.from({ length: template.steps }).map((_, i) => ({
             id: i + 1,
-            action: actions[i % actions.length] || `Executing Logic Block ${i}`,
-            tool: i % 2 === 0 ? 'MCP Bridge' : 'Gemini 2.5 Pro',
-            duration: 1500 + Math.random() * 1000,
-            outputDescription: `Step ${i + 1} artifact generated successfully.`
+            action: `Executing ${template.category} Task ${i + 1}`,
+            tool: 'PyCom Cloud Agent',
+            duration: 1500,
+            outputDescription: `Step ${i + 1} completed.`
         }));
-        
         setWorkflowSteps(newSteps);
         setActiveView('dashboard');
-        addLog(`Template deployed: ${template.title}. System ready.`, 'success');
+        addLog(`Template deployed: ${template.title}.`, 'success');
         setWorkflowStatus('idle');
     };
 
@@ -84,14 +184,13 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
         setArtifacts([]);
         setCurrentStepIndex(0);
         
-        addLog(`Initializing ${activeWorkflowName} protocol...`);
+        addLog(`Initializing ${activeWorkflowName}...`);
+        addLog(`[CLOUD] Syncing with PyCom MCP Server...`, 'warn');
+        
         setTimeout(() => {
-            addLog("Checking MCP Server connection...", 'warn');
-            setTimeout(() => {
-                addLog("Context loaded. Allocating resources.", 'success');
-                setWorkflowStatus('running');
-            }, 1000);
-        }, 800);
+            addLog("[MCP] Tools verified. Starting execution sequence.", 'success');
+            setWorkflowStatus('running');
+        }, 1500);
     };
 
     // Workflow Engine
@@ -100,54 +199,91 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
 
         if (currentStepIndex >= workflowSteps.length) {
             setWorkflowStatus('completed');
-            addLog("WORKFLOW COMPLETE. All tasks finished successfully.", 'success');
+            addLog("WORKFLOW COMPLETE. All tasks finished.", 'success');
+            
+            if (isContinuousMode) {
+                addLog("[LOOP] Continuous mode active. Restarting workflow in 5s...", 'warn');
+                setTimeout(() => {
+                    startWorkflow();
+                }, 5000);
+            }
             return;
         }
 
         const step = workflowSteps[currentStepIndex];
-        
-        // 1. Log Start
         addLog(`Starting Step ${step.id}: ${step.action}...`);
-        addLog(`> Tool: ${step.tool}`, 'warn');
 
         const timer = setTimeout(() => {
-            // 2. Log Result & Artifact
             addLog(`>> ${step.outputDescription}`, 'success');
             
-            // Add artifact occasionally
-            if (Math.random() > 0.5 || currentStepIndex === workflowSteps.length - 1) {
-                const artifactName = `${activeWorkflowName.replace(/\s/g, '_')}_Part_${currentStepIndex + 1}.${Math.random() > 0.5 ? 'json' : 'txt'}`;
-                setArtifacts(prev => [...prev, { name: artifactName, type: 'data' }]);
-                addLog(`[ARTIFACT] Generated: ${artifactName}`, 'success');
+            // Generate Rich Artifacts based on workflow type context
+            if (currentStepIndex === workflowSteps.length - 1) {
+                let artifactName = `${activeWorkflowName.replace(/\s/g, '_')}_Output.json`;
+                let content: any = {
+                    timestamp: new Date().toISOString(),
+                    source: activeWorkflowName,
+                    data: "Simulation of extracted data/results from PyCom Cloud."
+                };
+
+                // Sales ETL Specific Artifact Generation
+                if (activeWorkflowName.includes('Sales ETL')) {
+                    artifactName = "daily_sales_leads_report.csv";
+                    const csvHeader = "name,address,phone,website,lead_score,industry\n";
+                    const csvData = "TechSol,123 Innovation Dr,+1-555-0102,techsol.io,Hot,IT Services\nSoftSys,456 Code Ln,+1-555-0199,softsys.net,Warm/Cold,Software\nDataCorp,789 Server Rd,+1-555-0200,datacorp.com,Hot,Analytics";
+                    content = csvHeader + csvData; // Storing CSV string directly for simplicity here
+                } else if (activeWorkflowName.toLowerCase().includes("lead")) {
+                    artifactName = "Extracted_Leads_Batch_01.json";
+                } else if (activeWorkflowName.toLowerCase().includes("mining")) {
+                    artifactName = "Mined_Data_Set_A.json";
+                }
+                
+                setArtifacts(prev => [...prev, { name: artifactName, type: artifactName.endsWith('.csv') ? 'csv' : 'data', content }]);
+                addLog(`[ARTIFACT] Saved to Cloud: ${artifactName}`, 'success');
             }
             
             setCurrentStepIndex(prev => prev + 1);
         }, step.duration);
 
         return () => clearTimeout(timer);
-    }, [workflowStatus, currentStepIndex, workflowSteps]);
+    }, [workflowStatus, currentStepIndex, workflowSteps, isContinuousMode]);
 
     const handleConnectService = (service: string) => {
-        setConnectedServices(prev => [...prev, service]);
-        addLog(`Integration added: ${service}`, 'success');
+        if (!connectedServices.includes(service)) {
+            setConnectedServices(prev => [...prev, service]);
+            addLog(`Integration manually added: ${service}`, 'success');
+        }
     };
 
-    const handleDownloadArtifacts = () => {
-        const content = `
-AGENCY REPORT: ${agent.name} - ${activeWorkflowName}
-DATE: ${new Date().toLocaleDateString()}
-------------------------------------------------
-EXECUTION LOGS:
-${logs.map(l => l.replace(/<[^>]*>/g, '')).reverse().join('\n')}
-
-GENERATED ARTIFACTS SUMMARY:
-${artifacts.map(a => `- ${a.name}`).join('\n')}
-        `;
-        const blob = new Blob([content], { type: 'text/plain' });
+    const handleDownloadArtifact = (artifact: {name: string, type: string, content?: any}) => {
+        let blob;
+        if (artifact.type === 'csv') {
+             blob = new Blob([artifact.content], { type: 'text/csv' });
+        } else {
+             const jsonContent = typeof artifact.content === 'string' ? artifact.content : JSON.stringify(artifact.content || {
+                timestamp: new Date().toISOString(),
+                source: activeWorkflowName,
+                data: "Simulation of extracted data/results from PyCom Cloud."
+            }, null, 2);
+            blob = new Blob([jsonContent], { type: 'application/json' });
+        }
+        
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${activeWorkflowName.replace(/\s+/g, '_')}_Full_Report.txt`;
+        a.download = artifact.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleDownloadLogs = () => {
+        const logContent = logs.map(l => l.replace(/<[^>]*>?/gm, '')).join('\n'); // Strip HTML tags
+        const blob = new Blob([logContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Agent_Logs_${Date.now()}.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -187,18 +323,22 @@ ${artifacts.map(a => `- ${a.name}`).join('\n')}
                         <h2 className="text-white font-bold text-lg leading-none">{agent.name}</h2>
                         <div className="flex items-center gap-2 mt-1">
                             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">{agent.role} | ONLINE</p>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">{agent.role} | PyCom Cloud Connected</p>
                         </div>
                     </div>
                 </div>
                 
                 <div className="flex items-center gap-4">
-                    {workflowStatus === 'completed' && (
-                        <button onClick={handleDownloadArtifacts} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-colors shadow-lg shadow-green-900/20 animate-pop-in">
-                            <DownloadIcon className="w-4 h-4" />
-                            Download Results
-                        </button>
-                    )}
+                    {/* Continuous Mode Toggle */}
+                    <button 
+                        onClick={() => setIsContinuousMode(!isContinuousMode)}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-colors border ${isContinuousMode ? 'bg-blue-900/50 text-blue-300 border-blue-500' : 'bg-slate-800 text-slate-400 border-slate-600'}`}
+                        title="Restart workflow automatically upon completion"
+                    >
+                        <ClockIcon className="w-3 h-3" />
+                        24/7 Loop: {isContinuousMode ? 'ON' : 'OFF'}
+                    </button>
+
                     <button onClick={onLogout} className="bg-red-500/10 text-red-400 px-3 py-2 rounded hover:bg-red-500/20 transition-colors" title="Logout">
                         <ArrowRightOnRectangleIcon className="w-5 h-5" />
                     </button>
@@ -210,6 +350,7 @@ ${artifacts.map(a => `- ${a.name}`).join('\n')}
                 <div className="w-64 bg-slate-900 border-r border-slate-800 p-4 flex flex-col shrink-0">
                     <div className="space-y-2">
                         <NavButton view="dashboard" icon={<RobotIcon className="w-5 h-5" />} label="Workstation Dashboard" />
+                        <NavButton view="ide" icon={<CodeBracketIcon className="w-5 h-5" />} label="Agentic IDE" />
                         <NavButton view="mcp" icon={<CubeIcon className="w-5 h-5" />} label="MCP Server" />
                         <NavButton view="bigdata" icon={<TableCellsIcon className="w-5 h-5" />} label="Big Data Studio" />
                         <NavButton view="autopilot" icon={<PlayIcon className="w-5 h-5" />} label="Auto-Pilot Library" />
@@ -240,7 +381,6 @@ ${artifacts.map(a => `- ${a.name}`).join('\n')}
                 <div className="flex-grow bg-slate-950 relative overflow-hidden flex flex-col">
                     {activeView === 'dashboard' && (
                         <div className="flex flex-col h-full">
-                            {/* Workspace Area */}
                             <div className="flex-grow p-6 flex flex-col relative overflow-hidden">
                                 <div className="absolute inset-0 bg-grid-white/[0.02] pointer-events-none"></div>
                                 
@@ -261,35 +401,34 @@ ${artifacts.map(a => `- ${a.name}`).join('\n')}
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="w-full max-w-4xl mx-auto z-10 h-full flex flex-col">
-                                        <div className="flex justify-between items-end mb-6">
-                                            <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                                                {workflowStatus === 'running' || workflowStatus === 'initializing' ? (
-                                                    <span className="relative flex h-3 w-3">
-                                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                                                    </span>
-                                                ) : (
-                                                    <span className="w-3 h-3 rounded-full bg-blue-500"></span>
-                                                )}
-                                                {workflowStatus === 'initializing' ? 'Booting System...' : workflowStatus === 'running' ? 'Executing Workflow...' : 'Task Complete'}
-                                            </h3>
-                                            <span className="text-slate-500 font-mono text-xs bg-slate-900 px-2 py-1 rounded border border-slate-800">SESSION ID: {Date.now().toString().slice(-6)}</span>
-                                        </div>
+                                    <div className="w-full h-full flex gap-6">
+                                        {/* Left: Execution Status */}
+                                        <div className="flex-grow flex flex-col gap-4">
+                                            <div className="flex justify-between items-center">
+                                                <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                                                    {workflowStatus === 'running' || workflowStatus === 'initializing' ? (
+                                                        <span className="relative flex h-3 w-3">
+                                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                                        </span>
+                                                    ) : (
+                                                        <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+                                                    )}
+                                                    {workflowStatus === 'initializing' ? 'Booting System...' : workflowStatus === 'running' ? 'Executing Workflow...' : 'Task Complete'}
+                                                </h3>
+                                            </div>
 
-                                        <div className="flex flex-grow gap-6 overflow-hidden">
-                                            {/* Steps Visualization */}
-                                            <div className="w-2/3 bg-slate-900/50 rounded-xl border border-slate-800 p-4 overflow-y-auto">
+                                            <div className="flex-grow bg-slate-900/50 rounded-xl border border-slate-800 p-4 overflow-y-auto">
                                                 <div className="space-y-3">
                                                     {workflowSteps.map((step, index) => {
-                                                        let statusClass = 'border-slate-800 bg-slate-900/30 text-slate-600'; // pending
+                                                        let statusClass = 'border-slate-800 bg-slate-900/30 text-slate-600';
                                                         let icon = <div className="w-6 h-6 rounded-full border-2 border-slate-700 flex items-center justify-center text-xs font-mono">{index + 1}</div>;
 
                                                         if (index < currentStepIndex || workflowStatus === 'completed') {
-                                                            statusClass = 'border-green-900/50 bg-green-900/10 text-green-400'; // completed
+                                                            statusClass = 'border-green-900/50 bg-green-900/10 text-green-400';
                                                             icon = <CheckCircleIcon className="w-6 h-6 text-green-500" />;
                                                         } else if (index === currentStepIndex && workflowStatus === 'running') {
-                                                            statusClass = 'border-blue-900/50 bg-blue-900/10 text-blue-400 border-l-4 border-l-blue-500'; // active
+                                                            statusClass = 'border-blue-900/50 bg-blue-900/10 text-blue-400 border-l-4 border-l-blue-500';
                                                             icon = <div className="w-6 h-6 rounded-full border-2 border-blue-500 flex items-center justify-center text-xs font-bold text-blue-400 animate-pulse">{index + 1}</div>;
                                                         }
 
@@ -309,11 +448,44 @@ ${artifacts.map(a => `- ${a.name}`).join('\n')}
                                                 </div>
                                             </div>
 
-                                            {/* Logs Panel */}
-                                            <div className="w-1/3 bg-black rounded-xl border border-slate-800 flex flex-col overflow-hidden">
+                                            {/* Artifacts Panel */}
+                                            {artifacts.length > 0 && (
+                                                <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
+                                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                                        <DatabaseIcon className="w-4 h-4" /> Generated Artifacts
+                                                    </h4>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        {artifacts.map((artifact, i) => (
+                                                            <div key={i} className="flex items-center justify-between p-3 bg-slate-950 rounded border border-slate-700">
+                                                                <div className="flex items-center gap-2 truncate">
+                                                                    <DocumentIcon className="w-4 h-4 text-yellow-500" />
+                                                                    <span className="text-sm font-mono text-white truncate">{artifact.name}</span>
+                                                                </div>
+                                                                <button 
+                                                                    onClick={() => handleDownloadArtifact(artifact)}
+                                                                    className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded flex items-center gap-1 font-bold transition-colors"
+                                                                >
+                                                                    <DownloadIcon className="w-3 h-3" /> Download
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Right: Logs & Chat */}
+                                        <div className="w-1/3 flex flex-col gap-4">
+                                            {/* Logs */}
+                                            <div className="h-1/2 bg-black rounded-xl border border-slate-800 flex flex-col overflow-hidden">
                                                 <div className="bg-slate-900 p-2 border-b border-slate-800 flex justify-between items-center">
                                                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-2">System Logs</span>
-                                                    <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                                                    <div className="flex items-center gap-2">
+                                                        <button onClick={handleDownloadLogs} className="text-slate-500 hover:text-white" title="Download Logs">
+                                                            <DownloadIcon className="w-3 h-3" />
+                                                        </button>
+                                                        <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                                                    </div>
                                                 </div>
                                                 <div 
                                                     ref={logContainerRef}
@@ -325,6 +497,11 @@ ${artifacts.map(a => `- ${a.name}`).join('\n')}
                                                     <div className="animate-pulse text-green-500">_</div>
                                                 </div>
                                             </div>
+                                            
+                                            {/* Integrated Chat */}
+                                            <div className="h-1/2">
+                                                <DashboardChat agent={agent} logs={logs} />
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -332,6 +509,7 @@ ${artifacts.map(a => `- ${a.name}`).join('\n')}
                         </div>
                     )}
 
+                    {activeView === 'ide' && <AgentIDE />}
                     {activeView === 'mcp' && <MCPServer />}
                     {activeView === 'bigdata' && <BigDataTool />}
                     {activeView === 'autopilot' && <AutoPilot onDeploy={handleDeployTemplate} />}

@@ -1,6 +1,5 @@
 
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 // Fix: Add .tsx extension to module paths
 import HomePage from './components/pages/HomePage.tsx';
 import CareerPathsPage from './components/pages/CareerPathsPage.tsx';
@@ -28,9 +27,49 @@ import type { Page } from './types.ts';
 const App: React.FC = () => {
     const [activePage, setActivePage] = useState<Page>('home');
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    
+    // Usage Tracking State
+    const [interactions, setInteractions] = useState(0);
+    const [timeSpent, setTimeSpent] = useState(0);
+    const MAX_INTERACTIONS = 20;
+    const MAX_TIME_SECONDS = 120; // 2 minutes
+
+    useEffect(() => {
+        if (isAuthenticated) return;
+
+        const timer = setInterval(() => {
+            setTimeSpent(prev => {
+                if (prev >= MAX_TIME_SECONDS) {
+                    setIsAuthModalOpen(true);
+                    return prev;
+                }
+                return prev + 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [isAuthenticated]);
+
+    const trackInteraction = useCallback(() => {
+        if (isAuthenticated) return;
+        setInteractions(prev => {
+            if (prev >= MAX_INTERACTIONS) {
+                setIsAuthModalOpen(true);
+                return prev;
+            }
+            return prev + 1;
+        });
+    }, [isAuthenticated]);
+
+    const handleAuthSuccess = () => {
+        setIsAuthenticated(true);
+        setIsAuthModalOpen(false);
+        // Optional: Reset counters if you want re-locking logic after logout, or keep them
+    };
 
     const NavLinkWithTooltip: React.FC<{ page: Page, tooltip: string, children: React.ReactNode, isHighlight?: boolean }> = ({ page, tooltip, children, isHighlight }) => (
-      <div className="tooltip-container">
+      <div className="tooltip-container" onClick={trackInteraction}>
         <button
             onClick={() => setActivePage(page)}
             className={`px-4 py-2 rounded-lg font-bold transition-all duration-300 ${
@@ -69,8 +108,12 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="bg-slate-900 text-white min-h-screen font-sans">
-            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+        <div className="bg-slate-900 text-white min-h-screen font-sans" onClick={trackInteraction}>
+            <AuthModal 
+                isOpen={isAuthModalOpen} 
+                onClose={() => setIsAuthModalOpen(false)} 
+                onAuthSuccess={handleAuthSuccess}
+            />
             <header className="bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-700/50">
                 <nav className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
                     <button onClick={() => setActivePage('home')} className="flex items-center gap-2 text-2xl font-bold text-white transition-transform hover:scale-105 group">
@@ -93,7 +136,7 @@ const App: React.FC = () => {
                         <NavLinkWithTooltip page="contact" tooltip="Get in touch">Contact</NavLinkWithTooltip>
                     </div>
                     <button onClick={() => setIsAuthModalOpen(true)} className="bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-blue-900/50">
-                        Sign In
+                        {isAuthenticated ? 'My Account' : 'Sign In'}
                     </button>
                 </nav>
                 {/* Mobile Nav Placeholder (Basic) */}

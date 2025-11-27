@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { CloudArrowDownIcon, StarIcon, CheckCircleIcon, RocketLaunchIcon } from '../Icons.tsx';
+import React, { useState } from 'react';
+import { CloudArrowDownIcon, StarIcon, CheckCircleIcon, RocketLaunchIcon, ArrowPathIcon } from '../Icons.tsx';
 
 const APPS = [
     { id: '1', name: 'Django Starter', cat: 'Web', stars: '4.9', desc: 'Production-ready Django 5.0 setup with PostgreSQL.', icon: '🌶️' },
@@ -13,7 +13,23 @@ const APPS = [
     { id: '8', name: 'Streamlit Dashboard', cat: 'Data', stars: '4.9', desc: 'Turn data scripts into shareable web apps in minutes.', icon: '👑' },
 ];
 
-const Marketplace: React.FC = () => {
+interface MarketplaceProps {
+    onDeploy: (app: any) => void;
+}
+
+const Marketplace: React.FC<MarketplaceProps> = ({ onDeploy }) => {
+    const [deployingId, setDeployingId] = useState<string | null>(null);
+
+    const handleDeployClick = (app: any) => {
+        if (deployingId) return;
+        setDeployingId(app.id);
+        // Small delay for visual feedback before switching tabs
+        setTimeout(() => {
+            onDeploy(app);
+            setDeployingId(null);
+        }, 800);
+    };
+
     return (
         <div className="h-full flex flex-col bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
             <div className="bg-slate-900 p-6 border-b border-slate-800">
@@ -39,8 +55,20 @@ const Marketplace: React.FC = () => {
                             <span className="text-xs text-green-500 flex items-center gap-1"><CheckCircleIcon className="w-3 h-3" /> Verified</span>
                         </div>
                         <p className="text-sm text-slate-400 mb-6 line-clamp-2">{app.desc}</p>
-                        <button className="w-full bg-slate-800 text-white font-bold py-2 rounded-lg group-hover:bg-purple-600 transition-colors flex items-center justify-center gap-2">
-                            <CloudArrowDownIcon className="w-4 h-4" /> Deploy
+                        <button 
+                            onClick={() => handleDeployClick(app)}
+                            disabled={deployingId !== null}
+                            className={`w-full font-bold py-2 rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                                deployingId === app.id 
+                                ? 'bg-purple-700 text-white cursor-wait'
+                                : 'bg-slate-800 text-white group-hover:bg-purple-600'
+                            }`}
+                        >
+                            {deployingId === app.id ? (
+                                <><ArrowPathIcon className="w-4 h-4 animate-spin" /> Starting...</>
+                            ) : (
+                                <><CloudArrowDownIcon className="w-4 h-4" /> Deploy</>
+                            )}
                         </button>
                     </div>
                 ))}

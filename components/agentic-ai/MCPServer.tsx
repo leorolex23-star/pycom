@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { MCP_SERVICES } from '../../constants.ts';
 import { 
     CubeIcon, ServerStackIcon, ShieldCheckIcon, AdjustmentsHorizontalIcon, 
-    ArrowPathIcon, XMarkIcon, LockClosedIcon, KeyIcon, BoltIcon 
+    ArrowPathIcon, XMarkIcon, LockClosedIcon, KeyIcon, BoltIcon, CheckCircleIcon 
 } from '../Icons.tsx';
 
 type Tab = 'monitor' | 'config' | 'security' | 'cicd';
@@ -17,6 +17,19 @@ const MCPServer: React.FC = () => {
     const [ipWhitelist, setIpWhitelist] = useState(['127.0.0.1', '192.168.1.10']);
     const [tlsEnabled, setTlsEnabled] = useState(true);
     const [newIp, setNewIp] = useState('');
+    
+    const [isSaving, setIsSaving] = useState(false);
+    const [savedSuccess, setSavedSuccess] = useState(false);
+
+    const handleSaveConfig = () => {
+        setIsSaving(true);
+        // Simulate network delay
+        setTimeout(() => {
+            setIsSaving(false);
+            setSavedSuccess(true);
+            setTimeout(() => setSavedSuccess(false), 3000);
+        }, 1500);
+    }
 
     const handleRotateKey = () => {
         const newKey = 'mcp_sk_' + Math.random().toString(36).substring(2, 10) + '...';
@@ -186,8 +199,21 @@ const MCPServer: React.FC = () => {
                 </div>
 
                 <div className="flex justify-end pt-4 border-t border-slate-800">
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold transition-colors">
-                        Save Changes
+                    <button 
+                        onClick={handleSaveConfig}
+                        disabled={isSaving || savedSuccess}
+                        className={`px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2 ${
+                            savedSuccess 
+                            ? 'bg-green-600 text-white' 
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
+                    >
+                        {isSaving ? (
+                            <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                        ) : savedSuccess ? (
+                            <CheckCircleIcon className="w-4 h-4" />
+                        ) : null}
+                        {isSaving ? 'Saving...' : savedSuccess ? 'Saved!' : 'Save Changes'}
                     </button>
                 </div>
             </div>

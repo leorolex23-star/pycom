@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { XMarkIcon, GoogleIcon, MicrosoftIcon, LinkedInIcon, HubSpotIcon, CheckCircleIcon, SlackIcon, JiraIcon, GitHubIcon, StripeIcon } from '../Icons.tsx';
+import { XMarkIcon, GoogleIcon, MicrosoftIcon, LinkedInIcon, HubSpotIcon, CheckCircleIcon, SlackIcon, JiraIcon, GitHubIcon, StripeIcon, ChartBarSquareIcon } from '../Icons.tsx';
 
 interface IntegrationsModalProps {
     isOpen: boolean;
@@ -34,6 +34,7 @@ const IntegrationsModal: React.FC<IntegrationsModalProps> = ({ isOpen, onClose, 
         { name: 'GitHub', icon: <GitHubIcon className="w-6 h-6 text-white" />, desc: 'Code repositories & issues.' },
         { name: 'Jira', icon: <JiraIcon className="w-6 h-6 text-blue-500" />, desc: 'Project tracking & tickets.' },
         { name: 'Stripe', icon: <StripeIcon className="w-6 h-6 text-indigo-400" />, desc: 'Payments & billing data.' },
+        { name: 'Power BI', icon: <ChartBarSquareIcon className="w-6 h-6 text-yellow-500" />, desc: 'Analytics & data visualization.' },
         { name: 'Notion', icon: <div className="w-6 h-6 bg-white text-black rounded flex items-center justify-center font-bold">N</div>, desc: 'Knowledge base & docs.' },
         { name: 'Salesforce', icon: <div className="w-6 h-6 text-blue-400 font-bold">SF</div>, desc: 'Enterprise CRM data.' },
         { name: 'Zendesk', icon: <div className="w-6 h-6 text-green-400 font-bold">Z</div>, desc: 'Customer support tickets.' },

@@ -137,6 +137,7 @@ export interface Agent {
   id: string;
   name: string;
   role: AgentRole;
+  email: string; // New field
   loginId: string;
   avatarUrl: string;
   specialties: string[];
@@ -144,6 +145,7 @@ export interface Agent {
   kpis: string[];
   monthlyTarget: string;
   joinDate?: string;
+  reportsTo?: string; // New field: ID of the agent they report to
 }
 
 export interface WorkflowStep {
@@ -314,6 +316,34 @@ export interface ServerInstance {
     installedServices?: ServerService[];
 }
 
+export interface VPSInstance {
+    id: string;
+    name: string;
+    os: 'Ubuntu 22.04' | 'Debian 12' | 'Alpine Linux';
+    status: 'running' | 'stopped' | 'provisioning';
+    ip: string;
+    specs: {
+        cpu: number;
+        ram: number;
+    };
+}
+
+export interface VPNPeer {
+    id: string;
+    name: string;
+    ip: string;
+    status: 'connected' | 'disconnected';
+    lastHandshake: string;
+}
+
+export interface VPNConfig {
+    status: 'active' | 'inactive';
+    publicIp: string;
+    port: number;
+    publicKey: string;
+    peers: VPNPeer[];
+}
+
 // Big Data Types
 export interface Dataset {
     id: string;
@@ -332,3 +362,39 @@ export interface BigDataQuery {
 }
 
 export type VectorStoreType = 'Milvus' | 'Qdrant' | 'Weaviate' | 'FAISS' | 'Pinecone' | 'PyCom Native';
+
+// PyProd Types
+export interface PyProdTask {
+    id: string;
+    title: string;
+    assignee: string;
+    tag: string;
+}
+
+export interface PyProdColumn {
+    id: string;
+    title: string;
+    tasks: PyProdTask[];
+}
+
+export interface PyProdMessage {
+    id: string;
+    user: string;
+    text: string;
+    time: string;
+}
+
+export interface SearchResult {
+    title: string;
+    url: string;
+    snippet: string;
+    rank?: number;
+    authority?: number;
+    type?: 'web' | 'image' | 'video' | 'forum';
+    meta?: {
+        views?: string;
+        duration?: string;
+        replies?: number;
+        image?: string;
+    };
+}

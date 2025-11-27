@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { AdjustmentsHorizontalIcon, QuestionMarkCircleIcon } from '../Icons.tsx';
+import { AdjustmentsHorizontalIcon, QuestionMarkCircleIcon, CloudArrowUpIcon, CheckCircleIcon } from '../Icons.tsx';
 
 const AgentSettings: React.FC = () => {
     const [temperature, setTemperature] = useState(0.7);
@@ -8,6 +8,18 @@ const AgentSettings: React.FC = () => {
     const [topK, setTopK] = useState(40);
     const [maxTokens, setMaxTokens] = useState(2048);
     const [model, setModel] = useState('Gemini 2.5 Pro');
+    const [isSaving, setIsSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
+
+    const handleSave = () => {
+        setIsSaving(true);
+        // Simulate API call to PyCom Cloud
+        setTimeout(() => {
+            setIsSaving(false);
+            setSaved(true);
+            setTimeout(() => setSaved(false), 3000);
+        }, 1500);
+    };
 
     const Tooltip: React.FC<{ text: string }> = ({ text }) => (
         <div className="group relative inline-block ml-2">
@@ -133,8 +145,29 @@ const AgentSettings: React.FC = () => {
                 </div>
 
                 <div className="pt-8 mt-8 border-t border-slate-800 flex justify-end">
-                    <button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-bold transition-colors shadow-lg">
-                        Save Configuration
+                    <button 
+                        onClick={handleSave}
+                        disabled={isSaving || saved}
+                        className={`px-8 py-3 rounded-lg font-bold transition-all shadow-lg flex items-center gap-2 ${
+                            saved ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-purple-600 hover:bg-purple-700 text-white'
+                        }`}
+                    >
+                        {isSaving ? (
+                            <>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Syncing to PyCom Cloud...
+                            </>
+                        ) : saved ? (
+                            <>
+                                <CheckCircleIcon className="w-5 h-5" />
+                                Saved Successfully
+                            </>
+                        ) : (
+                            <>
+                                <CloudArrowUpIcon className="w-5 h-5" />
+                                Save Configuration
+                            </>
+                        )}
                     </button>
                 </div>
             </div>
