@@ -1,10 +1,11 @@
+
 import React, { useState, useRef } from 'react';
 import { 
     TableCellsIcon, ChartPieIcon, CloudArrowUpIcon, 
     MagnifyingGlassIcon, SparklesIcon, PresentationChartLineIcon,
     BoltIcon, TrashIcon, ArrowDownIcon, DocumentArrowDownIcon,
     PlusIcon, CheckCircleIcon, PlayIcon, ClockIcon, CloudArrowDownIcon,
-    FunnelIcon, ArrowPathIcon, CubeIcon, CodeBracketIcon
+    FunnelIcon, ArrowPathIcon, CubeIcon, CodeBracketIcon, RobotIcon
 } from '../Icons.tsx';
 import type { Dataset, BigDataQuery } from '../../types.ts';
 
@@ -14,7 +15,8 @@ const BigDataTool: React.FC = () => {
     const [activeView, setActiveView] = useState<View>('explore');
     const [datasets, setDatasets] = useState<Dataset[]>([
         { id: '1', name: 'Global Sales Q3', source: 'Snowflake', rows: 150420, columns: ['Region', 'Product', 'Revenue', 'Date'] },
-        { id: '2', name: 'User Churn Prediction', source: 'CSV Upload', rows: 5400, columns: ['User_ID', 'Last_Login', 'Churn_Prob', 'Plan'] }
+        { id: '2', name: 'User Churn Prediction', source: 'CSV Upload', rows: 5400, columns: ['User_ID', 'Last_Login', 'Churn_Prob', 'Plan'] },
+        { id: '3', name: 'daily_sales_leads_report.csv', source: 'Agent: Sales Director', rows: 48, columns: ['name', 'address', 'phone', 'website', 'lead_score', 'industry'] }
     ]);
     
     // ETL State
@@ -420,8 +422,13 @@ const BigDataTool: React.FC = () => {
                             {datasets.map(ds => (
                                 <div key={ds.id} className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-blue-500/50 transition-colors group relative">
                                     <div className="flex items-start justify-between mb-4">
-                                        <div className="p-3 bg-slate-800 rounded-lg">
+                                        <div className="p-3 bg-slate-800 rounded-lg relative">
                                             <TableCellsIcon className="w-8 h-8 text-blue-400" />
+                                            {ds.source.includes('Agent') && (
+                                                <div className="absolute -top-1 -right-1">
+                                                    <RobotIcon className="w-4 h-4 text-purple-500 bg-slate-900 rounded-full" />
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button 

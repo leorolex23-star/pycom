@@ -1,13 +1,16 @@
 
 import React, { useState } from 'react';
-import { AdjustmentsHorizontalIcon, QuestionMarkCircleIcon, CloudArrowUpIcon, CheckCircleIcon } from '../Icons.tsx';
+import { AdjustmentsHorizontalIcon, QuestionMarkCircleIcon, CloudArrowUpIcon, CheckCircleIcon, BrainIcon, DatabaseIcon } from '../Icons.tsx';
 
 const AgentSettings: React.FC = () => {
     const [temperature, setTemperature] = useState(0.7);
     const [topP, setTopP] = useState(0.95);
     const [topK, setTopK] = useState(40);
     const [maxTokens, setMaxTokens] = useState(2048);
-    const [model, setModel] = useState('Gemini 2.5 Pro');
+    const [modelProvider, setModelProvider] = useState<'gemini' | 'huggingface'>('gemini');
+    const [hfToken, setHfToken] = useState('');
+    const [hfModel, setHfModel] = useState('meta-llama/Llama-2-70b-chat-hf');
+    const [outputFormat, setOutputFormat] = useState('json');
     const [isSaving, setIsSaving] = useState(false);
     const [saved, setSaved] = useState(false);
 
@@ -40,22 +43,66 @@ const AgentSettings: React.FC = () => {
                 </h2>
             </div>
             
-            <div className="p-8 max-w-4xl overflow-y-auto flex-grow">
+            <div className="p-8 max-w-5xl overflow-y-auto flex-grow">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    {/* Left Column */}
+                    {/* Left Column: Model & Inference */}
                     <div className="space-y-8">
-                        <div>
-                            <label className="block text-slate-300 font-bold mb-2">Primary Model</label>
-                            <select 
-                                value={model}
-                                onChange={(e) => setModel(e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-purple-500 focus:outline-none"
-                            >
-                                <option>Gemini 2.5 Pro (Reasoning)</option>
-                                <option>Gemini 2.5 Flash (Speed)</option>
-                                <option>Gemini 1.5 Pro (Legacy)</option>
-                            </select>
-                            <p className="text-xs text-slate-500 mt-2">Select the underlying LLM powering this agent's decision making.</p>
+                        <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
+                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                <BrainIcon className="w-5 h-5 text-purple-400" />
+                                Inference Engine
+                            </h3>
+                            
+                            <div className="mb-4">
+                                <label className="block text-slate-300 font-bold mb-2">Model Provider</label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button 
+                                        onClick={() => setModelProvider('gemini')}
+                                        className={`p-3 rounded-lg border flex flex-col items-center gap-2 transition-all ${modelProvider === 'gemini' ? 'bg-blue-600/20 border-blue-500 text-white' : 'bg-slate-950 border-slate-700 text-slate-400 hover:bg-slate-800'}`}
+                                    >
+                                        <span className="font-bold text-sm">Google Gemini</span>
+                                    </button>
+                                    <button 
+                                        onClick={() => setModelProvider('huggingface')}
+                                        className={`p-3 rounded-lg border flex flex-col items-center gap-2 transition-all ${modelProvider === 'huggingface' ? 'bg-yellow-600/20 border-yellow-500 text-white' : 'bg-slate-950 border-slate-700 text-slate-400 hover:bg-slate-800'}`}
+                                    >
+                                        <span className="font-bold text-sm">Hugging Face</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {modelProvider === 'gemini' ? (
+                                <div>
+                                    <label className="block text-slate-300 font-bold mb-2 text-sm">Gemini Model Version</label>
+                                    <select className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-blue-500 outline-none text-sm">
+                                        <option>Gemini 2.5 Pro (Reasoning)</option>
+                                        <option>Gemini 2.5 Flash (Speed)</option>
+                                        <option>Gemini 1.5 Pro (Legacy)</option>
+                                    </select>
+                                </div>
+                            ) : (
+                                <div className="space-y-4 animate-fade-in-up">
+                                    <div>
+                                        <label className="block text-slate-300 font-bold mb-2 text-sm">Hugging Face API Token</label>
+                                        <input 
+                                            type="password" 
+                                            value={hfToken}
+                                            onChange={(e) => setHfToken(e.target.value)}
+                                            placeholder="hf_..."
+                                            className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-yellow-500 outline-none text-sm font-mono"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-slate-300 font-bold mb-2 text-sm">Model Endpoint / ID</label>
+                                        <input 
+                                            type="text" 
+                                            value={hfModel}
+                                            onChange={(e) => setHfModel(e.target.value)}
+                                            className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-yellow-500 outline-none text-sm font-mono"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div>
@@ -92,15 +139,52 @@ const AgentSettings: React.FC = () => {
                                 onChange={(e) => setMaxTokens(parseInt(e.target.value))}
                                 className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
                             />
-                            <div className="flex justify-between text-xs text-slate-500 mt-2">
-                                <span>Short (128)</span>
-                                <span>Long (8192)</span>
-                            </div>
                         </div>
                     </div>
 
-                    {/* Right Column */}
+                    {/* Right Column: Pipeline & System */}
                     <div className="space-y-8">
+                        <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
+                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                <DatabaseIcon className="w-5 h-5 text-green-400" />
+                                Data Pipeline Output
+                            </h3>
+                            <p className="text-xs text-slate-400 mb-4">Configure how this agent structures its deliverables for the Big Data Engine.</p>
+                            
+                            <div className="space-y-3">
+                                <label className="flex items-center gap-3 p-3 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
+                                    <input 
+                                        type="radio" 
+                                        name="outputFormat" 
+                                        checked={outputFormat === 'json'} 
+                                        onChange={() => setOutputFormat('json')}
+                                        className="accent-green-500" 
+                                    />
+                                    <span className="text-sm font-mono text-white">JSON (Structured)</span>
+                                </label>
+                                <label className="flex items-center gap-3 p-3 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
+                                    <input 
+                                        type="radio" 
+                                        name="outputFormat" 
+                                        checked={outputFormat === 'csv'} 
+                                        onChange={() => setOutputFormat('csv')}
+                                        className="accent-green-500" 
+                                    />
+                                    <span className="text-sm font-mono text-white">CSV (Tabular / Excel)</span>
+                                </label>
+                                <label className="flex items-center gap-3 p-3 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
+                                    <input 
+                                        type="radio" 
+                                        name="outputFormat" 
+                                        checked={outputFormat === 'sql'} 
+                                        onChange={() => setOutputFormat('sql')}
+                                        className="accent-green-500" 
+                                    />
+                                    <span className="text-sm font-mono text-white">SQL Insert Statements</span>
+                                </label>
+                            </div>
+                        </div>
+
                         <div>
                             <div className="flex items-center mb-2">
                                 <label className="block text-slate-300 font-bold">Top P (Nucleus Sampling): {topP}</label>
@@ -118,27 +202,11 @@ const AgentSettings: React.FC = () => {
                         </div>
 
                         <div>
-                            <div className="flex items-center mb-2">
-                                <label className="block text-slate-300 font-bold">Top K: {topK}</label>
-                                <Tooltip text="Limits the next token selection to the K most likely tokens. Lower values reduce weird outputs." />
-                            </div>
-                            <input 
-                                type="range" 
-                                min="1" 
-                                max="100" 
-                                step="1" 
-                                value={topK}
-                                onChange={(e) => setTopK(parseInt(e.target.value))}
-                                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                            />
-                        </div>
-
-                        <div>
                             <label className="block text-slate-300 font-bold mb-2">System Prompt Override</label>
                             <textarea 
                                 className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-purple-500 focus:outline-none h-40 font-mono text-sm"
                                 placeholder="You are a helpful AI assistant..."
-                                defaultValue="You are an autonomous agent capable of using tools to achieve business objectives. Always prioritize accuracy and efficiency. When interacting with MCP tools, ensure parameters are validated."
+                                defaultValue="You are an autonomous agent capable of using tools to achieve business objectives. Always prioritize accuracy and efficiency. When generating data artifacts, ensure strict schema compliance for ETL pipelines."
                             ></textarea>
                         </div>
                     </div>
@@ -160,7 +228,7 @@ const AgentSettings: React.FC = () => {
                         ) : saved ? (
                             <>
                                 <CheckCircleIcon className="w-5 h-5" />
-                                Saved Successfully
+                                Configuration Saved
                             </>
                         ) : (
                             <>

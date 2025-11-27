@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import type { Agent, AgentWorkflow, WorkflowTemplate } from '../../types.ts';
-import { AGENT_WORKFLOWS } from '../../constants.ts';
+import type { Agent, WorkflowTemplate } from '../../types.ts';
+import { AGENT_WORKFLOWS, AGENTS } from '../../constants.ts';
 import { 
     RobotIcon, CogIcon, PlayIcon, CheckCircleIcon, ArrowRightOnRectangleIcon, 
-    PlusIcon, LinkIcon, DatabaseIcon, CubeIcon, DownloadIcon, ArrowPathIcon, TableCellsIcon, CodeBracketIcon, SparklesIcon, ClockIcon, DocumentIcon
+    PlusIcon, LinkIcon, DatabaseIcon, CubeIcon, DownloadIcon, TableCellsIcon, CodeBracketIcon, SparklesIcon, ClockIcon, DocumentIcon, UserGroupIcon, ChartBarIcon, PaperAirplaneIcon, ServerStackIcon
 } from '../Icons.tsx';
 import IntegrationsModal from './IntegrationsModal.tsx';
 import AutoPilot from './AutoPilot.tsx';
@@ -13,6 +13,7 @@ import KnowledgeBase from './KnowledgeBase.tsx';
 import AgentSettings from './AgentSettings.tsx';
 import BigDataTool from './BigDataTool.tsx';
 import AgentIDE from './AgentIDE.tsx';
+import OrgChart from './OrgChart.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
 
 interface AgentWorkstationProps {
@@ -20,7 +21,7 @@ interface AgentWorkstationProps {
     onLogout: () => void;
 }
 
-type View = 'dashboard' | 'mcp' | 'autopilot' | 'knowledge' | 'settings' | 'bigdata' | 'ide';
+type View = 'dashboard' | 'mcp' | 'autopilot' | 'knowledge' | 'settings' | 'bigdata' | 'ide' | 'team';
 
 // Inner Chat Interface for the Dashboard View
 const DashboardChat: React.FC<{ agent: Agent, logs: string[] }> = ({ agent, logs }) => {
@@ -52,9 +53,8 @@ const DashboardChat: React.FC<{ agent: Agent, logs: string[] }> = ({ agent, logs
     useEffect(() => {
         if (logs.length > 0) {
             const lastLog = logs[0]; // Newest log
-            // Only react if chat is available OR just simulating logic
             if (lastLog.includes('WORKFLOW COMPLETE')) {
-                setMessages(prev => [...prev, { role: 'model', text: "🎉 Workflow completed successfully! The artifacts are ready for download." }]);
+                setMessages(prev => [...prev, { role: 'model', text: "🎉 Workflow completed successfully! The artifacts are ready for download or ETL processing." }]);
             } else if (lastLog.includes('Initializing')) {
                 setMessages(prev => [...prev, { role: 'model', text: "🚀 Starting automation sequence. Connecting to MCP tools..." }]);
             }
@@ -132,7 +132,19 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
     const [workflowSteps, setWorkflowSteps] = useState(AGENT_WORKFLOWS[agent.id]?.steps || []);
     const [isContinuousMode, setIsContinuousMode] = useState(false);
     
+    // New State for Training Simulation & Reporting
+    const [trainingMetrics, setTrainingMetrics] = useState<{epoch: number, loss: number, accuracy: number} | null>(null);
+    const [reportingManager, setReportingManager] = useState<Agent | null>(null);
+
     const logContainerRef = useRef<HTMLDivElement>(null);
+
+    // Find manager
+    useEffect(() => {
+        if (agent.reportsTo) {
+            const manager = AGENTS.find(a => a.id === agent.reportsTo);
+            setReportingManager(manager || null);
+        }
+    }, [agent]);
 
     // Auto-connect required tools on mount
     useEffect(() => {
@@ -182,6 +194,7 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
         setWorkflowStatus('initializing');
         setLogs([]);
         setArtifacts([]);
+        setTrainingMetrics(null);
         setCurrentStepIndex(0);
         
         addLog(`Initializing ${activeWorkflowName}...`);
@@ -199,7 +212,8 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
 
         if (currentStepIndex >= workflowSteps.length) {
             setWorkflowStatus('completed');
-            addLog("WORKFLOW COMPLETE. All tasks finished.", 'success');
+            setTrainingMetrics(null); // Clear metrics display
+            addLog("WORKFLOW COMPLETE. Artifacts ready for Big Data ingestion.", 'success');
             
             if (isContinuousMode) {
                 addLog("[LOOP] Continuous mode active. Restarting workflow in 5s...", 'warn');
@@ -213,38 +227,72 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
         const step = workflowSteps[currentStepIndex];
         addLog(`Starting Step ${step.id}: ${step.action}...`);
 
-        const timer = setTimeout(() => {
-            addLog(`>> ${step.outputDescription}`, 'success');
-            
-            // Generate Rich Artifacts based on workflow type context
-            if (currentStepIndex === workflowSteps.length - 1) {
-                let artifactName = `${activeWorkflowName.replace(/\s/g, '_')}_Output.json`;
-                let content: any = {
-                    timestamp: new Date().toISOString(),
-                    source: activeWorkflowName,
-                    data: "Simulation of extracted data/results from PyCom Cloud."
-                };
+        // Check if this is a training step
+        if (step.action.includes('Training') || step.action.includes('Fine-Tuning')) {
+            // Simulate training loop within the step duration
+            let epoch = 0;
+            const trainingInterval = setInterval(() => {
+                epoch++;
+                const loss = Math.max(0.1, 2.5 - (epoch * 0.5) + (Math.random() * 0.2));
+                const acc = Math.min(0.99, 0.5 + (epoch * 0.1) + (Math.random() * 0.05));
+                
+                setTrainingMetrics({ epoch, loss, accuracy: acc });
+                addLog(`[TRAIN] Epoch ${epoch}: Loss=${loss.toFixed(4)}, Acc=${(acc * 100).toFixed(2)}%`);
+            }, 800);
 
-                // Sales ETL Specific Artifact Generation
-                if (activeWorkflowName.includes('Sales ETL')) {
-                    artifactName = "daily_sales_leads_report.csv";
-                    const csvHeader = "name,address,phone,website,lead_score,industry\n";
-                    const csvData = "TechSol,123 Innovation Dr,+1-555-0102,techsol.io,Hot,IT Services\nSoftSys,456 Code Ln,+1-555-0199,softsys.net,Warm/Cold,Software\nDataCorp,789 Server Rd,+1-555-0200,datacorp.com,Hot,Analytics";
-                    content = csvHeader + csvData; // Storing CSV string directly for simplicity here
-                } else if (activeWorkflowName.toLowerCase().includes("lead")) {
-                    artifactName = "Extracted_Leads_Batch_01.json";
-                } else if (activeWorkflowName.toLowerCase().includes("mining")) {
-                    artifactName = "Mined_Data_Set_A.json";
+            setTimeout(() => {
+                clearInterval(trainingInterval);
+                addLog(`>> ${step.outputDescription}`, 'success');
+                setCurrentStepIndex(prev => prev + 1);
+            }, step.duration);
+            
+        } else {
+            const timer = setTimeout(() => {
+                addLog(`>> ${step.outputDescription}`, 'success');
+                
+                // Generate Rich Artifacts based on workflow type context
+                if (currentStepIndex === workflowSteps.length - 1) {
+                    let artifactName = `${activeWorkflowName.replace(/\s/g, '_')}_Output.json`;
+                    let content: any = {
+                        timestamp: new Date().toISOString(),
+                        source: activeWorkflowName,
+                        data: "Simulation of extracted data/results from PyCom Cloud."
+                    };
+
+                    // Enhanced Artifact Logic
+                    if (activeWorkflowName.includes('Sales ETL') || agent.role === 'Sales Director') {
+                        artifactName = "daily_sales_leads_report.csv";
+                        const companies = ['TechSol', 'SoftSys', 'DataCorp', 'CloudNine', 'NextGen AI'];
+                        const industries = ['IT Services', 'Software', 'Analytics', 'Cloud Infra', 'AI Research'];
+                        const csvHeader = "name,address,phone,website,lead_score,industry\n";
+                        const csvRows = companies.map(comp => {
+                            const industry = industries[Math.floor(Math.random() * industries.length)];
+                            const score = Math.random() > 0.5 ? 'Hot' : 'Warm';
+                            return `${comp},${Math.floor(Math.random()*999)} Innovation Dr,+1-555-${Math.floor(Math.random()*9000) + 1000},${comp.toLowerCase()}.io,${score},${industry}`;
+                        }).join('\n');
+                        content = csvHeader + csvRows;
+                    } else if (agent.role.includes('Scientist') || agent.role.includes('Researcher')) {
+                        artifactName = "model_weights_v2.pt";
+                        content = "BINARY_MODEL_DATA_SIMULATION"; // Mock binary content
+                    } else if (activeWorkflowName.toLowerCase().includes("lead")) {
+                        artifactName = "Extracted_Leads_Batch_01.json";
+                        content = Array.from({length: 5}).map((_, i) => ({
+                            id: i,
+                            name: `Lead ${i+1}`,
+                            email: `lead${i+1}@target.com`,
+                            score: Math.floor(Math.random() * 100)
+                        }));
+                    }
+                    
+                    setArtifacts(prev => [...prev, { name: artifactName, type: artifactName.endsWith('.csv') ? 'csv' : 'data', content }]);
+                    addLog(`[ARTIFACT] Saved to Cloud Storage: ${artifactName}`, 'success');
                 }
                 
-                setArtifacts(prev => [...prev, { name: artifactName, type: artifactName.endsWith('.csv') ? 'csv' : 'data', content }]);
-                addLog(`[ARTIFACT] Saved to Cloud: ${artifactName}`, 'success');
-            }
-            
-            setCurrentStepIndex(prev => prev + 1);
-        }, step.duration);
+                setCurrentStepIndex(prev => prev + 1);
+            }, step.duration);
 
-        return () => clearTimeout(timer);
+            return () => clearTimeout(timer);
+        }
     }, [workflowStatus, currentStepIndex, workflowSteps, isContinuousMode]);
 
     const handleConnectService = (service: string) => {
@@ -277,6 +325,13 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
         URL.revokeObjectURL(url);
     };
 
+    const handleSendToBigData = (artifactName: string) => {
+        addLog(`[ETL] Ingesting ${artifactName} into Big Data Studio...`, 'warn');
+        setTimeout(() => {
+            addLog(`[SUCCESS] Data loaded into PyCom Data Warehouse. Ready for SQL analysis.`, 'success');
+        }, 1500);
+    };
+
     const handleDownloadLogs = () => {
         const logContent = logs.map(l => l.replace(/<[^>]*>?/gm, '')).join('\n'); // Strip HTML tags
         const blob = new Blob([logContent], { type: 'text/plain' });
@@ -288,6 +343,14 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    };
+
+    const handleSubmitDeliverable = () => {
+        if (!reportingManager) return;
+        addLog(`[EMAIL] Sending deliverables to ${reportingManager.email}...`, 'warn');
+        setTimeout(() => {
+            addLog(`[SUCCESS] Deliverables submitted to ${reportingManager.name}. Notification sent via PyMail.`, 'success');
+        }, 1500);
     };
 
     const NavButton: React.FC<{ view: View, icon: any, label: string }> = ({ view, icon, label }) => (
@@ -323,7 +386,7 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
                         <h2 className="text-white font-bold text-lg leading-none">{agent.name}</h2>
                         <div className="flex items-center gap-2 mt-1">
                             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">{agent.role} | PyCom Cloud Connected</p>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">{agent.role} | {agent.email}</p>
                         </div>
                     </div>
                 </div>
@@ -350,6 +413,7 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
                 <div className="w-64 bg-slate-900 border-r border-slate-800 p-4 flex flex-col shrink-0">
                     <div className="space-y-2">
                         <NavButton view="dashboard" icon={<RobotIcon className="w-5 h-5" />} label="Workstation Dashboard" />
+                        <NavButton view="team" icon={<UserGroupIcon className="w-5 h-5" />} label="Team & Hierarchy" />
                         <NavButton view="ide" icon={<CodeBracketIcon className="w-5 h-5" />} label="Agentic IDE" />
                         <NavButton view="mcp" icon={<CubeIcon className="w-5 h-5" />} label="MCP Server" />
                         <NavButton view="bigdata" icon={<TableCellsIcon className="w-5 h-5" />} label="Big Data Studio" />
@@ -448,36 +512,97 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
                                                 </div>
                                             </div>
 
-                                            {/* Artifacts Panel */}
-                                            {artifacts.length > 0 && (
-                                                <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
+                                            {/* Artifacts & Submit Panel */}
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {/* Artifacts */}
+                                                <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4 min-h-[120px]">
                                                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                                                         <DatabaseIcon className="w-4 h-4" /> Generated Artifacts
                                                     </h4>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                        {artifacts.map((artifact, i) => (
-                                                            <div key={i} className="flex items-center justify-between p-3 bg-slate-950 rounded border border-slate-700">
-                                                                <div className="flex items-center gap-2 truncate">
-                                                                    <DocumentIcon className="w-4 h-4 text-yellow-500" />
-                                                                    <span className="text-sm font-mono text-white truncate">{artifact.name}</span>
+                                                    {artifacts.length > 0 ? (
+                                                        <div className="space-y-2">
+                                                            {artifacts.map((artifact, i) => (
+                                                                <div key={i} className="flex flex-col gap-2 p-2 bg-slate-950 rounded border border-slate-700">
+                                                                    <span className="text-xs font-mono text-white truncate max-w-[150px]">{artifact.name}</span>
+                                                                    <div className="flex gap-2">
+                                                                        <button 
+                                                                            onClick={() => handleDownloadArtifact(artifact)}
+                                                                            className="text-[10px] bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded flex items-center gap-1 font-bold transition-colors flex-1 justify-center"
+                                                                        >
+                                                                            <DownloadIcon className="w-3 h-3" /> Save
+                                                                        </button>
+                                                                        <button 
+                                                                            onClick={() => handleSendToBigData(artifact.name)}
+                                                                            className="text-[10px] bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded flex items-center gap-1 font-bold transition-colors flex-1 justify-center"
+                                                                            title="Push to ETL Pipeline"
+                                                                        >
+                                                                            <ServerStackIcon className="w-3 h-3" /> Big Data
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
-                                                                <button 
-                                                                    onClick={() => handleDownloadArtifact(artifact)}
-                                                                    className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded flex items-center gap-1 font-bold transition-colors"
-                                                                >
-                                                                    <DownloadIcon className="w-3 h-3" /> Download
-                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-xs text-slate-600 italic">No artifacts generated yet.</p>
+                                                    )}
+                                                </div>
+                                                
+                                                {/* Submission Panel */}
+                                                <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4 flex flex-col justify-between min-h-[120px]">
+                                                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2">
+                                                        <PaperAirplaneIcon className="w-4 h-4" /> Next Actions
+                                                    </h4>
+                                                    {reportingManager && workflowStatus === 'completed' ? (
+                                                        <div>
+                                                            <p className="text-xs text-slate-300 mb-2">Manager: <span className="text-white font-bold">{reportingManager.name}</span></p>
+                                                            <button 
+                                                                onClick={handleSubmitDeliverable}
+                                                                className="w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 rounded flex items-center justify-center gap-2 transition-colors"
+                                                            >
+                                                                Submit Deliverables
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-xs text-slate-600 italic flex-grow flex items-center justify-center">Waiting for completion...</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Right: Logs, Metrics & Chat */}
+                                        <div className="w-1/3 flex flex-col gap-4">
+                                            {/* Live Metrics Chart (if training) */}
+                                            {trainingMetrics && (
+                                                <div className="bg-slate-900 rounded-xl border border-slate-800 p-4">
+                                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                                        <ChartBarIcon className="w-4 h-4" /> Live Training Metrics
+                                                    </h4>
+                                                    <div className="space-y-3">
+                                                        <div>
+                                                            <div className="flex justify-between text-xs text-slate-300 mb-1">
+                                                                <span>Loss</span>
+                                                                <span>{trainingMetrics.loss.toFixed(4)}</span>
                                                             </div>
-                                                        ))}
+                                                            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                                                <div className="h-full bg-red-500 transition-all duration-300" style={{ width: `${Math.min(100, trainingMetrics.loss * 20)}%` }}></div>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="flex justify-between text-xs text-slate-300 mb-1">
+                                                                <span>Accuracy</span>
+                                                                <span>{(trainingMetrics.accuracy * 100).toFixed(1)}%</span>
+                                                            </div>
+                                                            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                                                <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${trainingMetrics.accuracy * 100}%` }}></div>
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-center text-xs text-slate-500 font-mono mt-1">Epoch {trainingMetrics.epoch}</p>
                                                     </div>
                                                 </div>
                                             )}
-                                        </div>
 
-                                        {/* Right: Logs & Chat */}
-                                        <div className="w-1/3 flex flex-col gap-4">
                                             {/* Logs */}
-                                            <div className="h-1/2 bg-black rounded-xl border border-slate-800 flex flex-col overflow-hidden">
+                                            <div className="flex-grow bg-black rounded-xl border border-slate-800 flex flex-col overflow-hidden min-h-[200px]">
                                                 <div className="bg-slate-900 p-2 border-b border-slate-800 flex justify-between items-center">
                                                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-2">System Logs</span>
                                                     <div className="flex items-center gap-2">
@@ -499,7 +624,7 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
                                             </div>
                                             
                                             {/* Integrated Chat */}
-                                            <div className="h-1/2">
+                                            <div className="h-1/3 min-h-[150px]">
                                                 <DashboardChat agent={agent} logs={logs} />
                                             </div>
                                         </div>
@@ -515,6 +640,7 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
                     {activeView === 'autopilot' && <AutoPilot onDeploy={handleDeployTemplate} />}
                     {activeView === 'knowledge' && <KnowledgeBase />}
                     {activeView === 'settings' && <AgentSettings />}
+                    {activeView === 'team' && <OrgChart activeAgentId={agent.id} />}
                 </div>
             </div>
         </div>
