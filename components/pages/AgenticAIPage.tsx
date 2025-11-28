@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import type { Agent } from '../../types.ts';
 import AgentLoginPage from '../sales-ai/AgentLoginPage.tsx';

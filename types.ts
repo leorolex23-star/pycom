@@ -131,7 +131,8 @@ export type AgentRole =
   | 'Software Engineer'
   | 'QA Automation'
   | 'Data Analyst'
-  | 'AI Researcher';
+  | 'AI Researcher'
+  | 'System Admin';
 
 export interface Agent {
   id: string;
@@ -397,4 +398,19 @@ export interface SearchResult {
         replies?: number;
         image?: string;
     };
+}
+
+// Admin Types
+export interface ResourceAllocation {
+  agentId: string;
+  vpsId: string;
+  accessLevel: 'Root' | 'User';
+  storageQuota: string;
+}
+
+export interface SystemHealth {
+  clusterId: string;
+  status: 'Healthy' | 'Degraded' | 'Critical';
+  uptime: string;
+  activeAlerts: number;
 }

@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { Agent, WorkflowTemplate } from '../../types.ts';
 import { AGENT_WORKFLOWS, AGENTS } from '../../constants.ts';
 import { 
     RobotIcon, CogIcon, PlayIcon, CheckCircleIcon, ArrowRightOnRectangleIcon, 
-    PlusIcon, LinkIcon, DatabaseIcon, CubeIcon, DownloadIcon, TableCellsIcon, CodeBracketIcon, SparklesIcon, ClockIcon, DocumentIcon, UserGroupIcon, ChartBarIcon, PaperAirplaneIcon, ServerStackIcon
+    PlusIcon, LinkIcon, DatabaseIcon, CubeIcon, DownloadIcon, TableCellsIcon, CodeBracketIcon, SparklesIcon, ClockIcon, DocumentIcon, UserGroupIcon, ChartBarIcon, PaperAirplaneIcon, ServerStackIcon, BeakerIcon, UsersIcon, WrenchScrewdriverIcon
 } from '../Icons.tsx';
 import IntegrationsModal from './IntegrationsModal.tsx';
 import AutoPilot from './AutoPilot.tsx';
@@ -14,6 +13,9 @@ import AgentSettings from './AgentSettings.tsx';
 import BigDataTool from './BigDataTool.tsx';
 import AgentIDE from './AgentIDE.tsx';
 import OrgChart from './OrgChart.tsx';
+import ModelTuner from './ModelTuner.tsx';
+import CollaborativeCanvas from './CollaborativeCanvas.tsx';
+import AdminDashboard from './AdminDashboard.tsx';
 import { GoogleGenAI, Chat } from '@google/genai';
 
 interface AgentWorkstationProps {
@@ -21,7 +23,7 @@ interface AgentWorkstationProps {
     onLogout: () => void;
 }
 
-type View = 'dashboard' | 'mcp' | 'autopilot' | 'knowledge' | 'settings' | 'bigdata' | 'ide' | 'team';
+type View = 'dashboard' | 'mcp' | 'autopilot' | 'knowledge' | 'settings' | 'bigdata' | 'ide' | 'team' | 'tuner' | 'collab' | 'admin';
 
 // Inner Chat Interface for the Dashboard View
 const DashboardChat: React.FC<{ agent: Agent, logs: string[] }> = ({ agent, logs }) => {
@@ -54,7 +56,7 @@ const DashboardChat: React.FC<{ agent: Agent, logs: string[] }> = ({ agent, logs
         if (logs.length > 0) {
             const lastLog = logs[0]; // Newest log
             if (lastLog.includes('WORKFLOW COMPLETE')) {
-                setMessages(prev => [...prev, { role: 'model', text: "🎉 Workflow completed successfully! The artifacts are ready for download or ETL processing." }]);
+                setMessages(prev => [...prev, { role: 'model', text: "🎉 Workflow completed successfully! The artifacts are ready for download." }]);
             } else if (lastLog.includes('Initializing')) {
                 setMessages(prev => [...prev, { role: 'model', text: "🚀 Starting automation sequence. Connecting to MCP tools..." }]);
             }
@@ -138,6 +140,9 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
 
     const logContainerRef = useRef<HTMLDivElement>(null);
 
+    // Helper to check for admin role
+    const isAdmin = agent.role === 'CEO' || agent.role === 'System Admin';
+
     // Find manager
     useEffect(() => {
         if (agent.reportsTo) {
@@ -213,7 +218,7 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
         if (currentStepIndex >= workflowSteps.length) {
             setWorkflowStatus('completed');
             setTrainingMetrics(null); // Clear metrics display
-            addLog("WORKFLOW COMPLETE. Artifacts ready for Big Data ingestion.", 'success');
+            addLog("WORKFLOW COMPLETE. All tasks finished.", 'success');
             
             if (isContinuousMode) {
                 addLog("[LOOP] Continuous mode active. Restarting workflow in 5s...", 'warn');
@@ -285,7 +290,7 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
                     }
                     
                     setArtifacts(prev => [...prev, { name: artifactName, type: artifactName.endsWith('.csv') ? 'csv' : 'data', content }]);
-                    addLog(`[ARTIFACT] Saved to Cloud Storage: ${artifactName}`, 'success');
+                    addLog(`[ARTIFACT] Saved to Cloud: ${artifactName}`, 'success');
                 }
                 
                 setCurrentStepIndex(prev => prev + 1);
@@ -325,13 +330,6 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
         URL.revokeObjectURL(url);
     };
 
-    const handleSendToBigData = (artifactName: string) => {
-        addLog(`[ETL] Ingesting ${artifactName} into Big Data Studio...`, 'warn');
-        setTimeout(() => {
-            addLog(`[SUCCESS] Data loaded into PyCom Data Warehouse. Ready for SQL analysis.`, 'success');
-        }, 1500);
-    };
-
     const handleDownloadLogs = () => {
         const logContent = logs.map(l => l.replace(/<[^>]*>?/gm, '')).join('\n'); // Strip HTML tags
         const blob = new Blob([logContent], { type: 'text/plain' });
@@ -353,295 +351,307 @@ const AgentWorkstation: React.FC<AgentWorkstationProps> = ({ agent, onLogout }) 
         }, 1500);
     };
 
+    const renderView = () => {
+        switch(activeView) {
+            case 'autopilot': return <AutoPilot onDeploy={handleDeployTemplate} />;
+            case 'mcp': return <MCPServer />;
+            case 'knowledge': return <KnowledgeBase />;
+            case 'settings': return <AgentSettings />;
+            case 'bigdata': return <BigDataTool />;
+            case 'ide': return <AgentIDE />;
+            case 'team': return <OrgChart activeAgentId={agent.id} />;
+            case 'tuner': return <ModelTuner />;
+            case 'collab': return <CollaborativeCanvas />;
+            case 'admin': return isAdmin ? <AdminDashboard /> : <div className="p-10 text-center text-red-400">Access Denied. Requires System Admin privileges.</div>;
+            default: return (
+                <div className="flex flex-col h-full">
+                    <div className="flex-grow p-6 flex flex-col relative overflow-hidden">
+                        <div className="absolute inset-0 bg-grid-white/[0.02] pointer-events-none"></div>
+                        
+                        {workflowStatus === 'idle' ? (
+                            <div className="flex flex-col items-center justify-center h-full text-center max-w-md mx-auto z-10 animate-fade-in-up">
+                                <div className="w-24 h-24 bg-purple-900/20 rounded-full flex items-center justify-center mb-6 border border-purple-500/50 shadow-[0_0_30px_rgba(147,51,234,0.2)]">
+                                    <PlayIcon className="w-10 h-10 text-purple-400" />
+                                </div>
+                                <h1 className="text-2xl font-bold text-white mb-2">{activeWorkflowName}</h1>
+                                <p className="text-slate-400 mb-8 text-sm">Workflow configured and ready. Initialize autonomous execution sequence to begin processing.</p>
+                                
+                                <button 
+                                    onClick={startWorkflow}
+                                    className="group relative inline-flex items-center justify-center px-8 py-3 font-bold text-white transition-all duration-200 bg-purple-600 rounded-lg hover:bg-purple-500 hover:shadow-lg hover:shadow-purple-500/40 hover:-translate-y-1"
+                                >
+                                    <PlayIcon className="w-5 h-5 mr-2" />
+                                    Initialize Automation
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="w-full h-full flex gap-6">
+                                {/* Left: Execution Status */}
+                                <div className="flex-grow flex flex-col gap-4">
+                                    <div className="flex justify-between items-center">
+                                        <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                                            {workflowStatus === 'running' || workflowStatus === 'initializing' ? (
+                                                <span className="relative flex h-3 w-3">
+                                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                                </span>
+                                            ) : (
+                                                <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+                                            )}
+                                            {workflowStatus === 'initializing' ? 'Booting System...' : workflowStatus === 'running' ? 'Executing Workflow...' : 'Task Complete'}
+                                        </h3>
+                                    </div>
+
+                                    <div className="flex-grow bg-slate-900/50 rounded-xl border border-slate-800 p-4 overflow-y-auto">
+                                        <div className="space-y-3">
+                                            {workflowSteps.map((step, index) => {
+                                                let statusClass = 'border-slate-800 bg-slate-900/30 text-slate-600';
+                                                let icon = <div className="w-6 h-6 rounded-full border-2 border-slate-700 flex items-center justify-center text-xs font-mono">{index + 1}</div>;
+
+                                                if (index < currentStepIndex || workflowStatus === 'completed') {
+                                                    statusClass = 'border-green-900/50 bg-green-900/10 text-green-400';
+                                                    icon = <CheckCircleIcon className="w-6 h-6 text-green-500" />;
+                                                } else if (index === currentStepIndex && workflowStatus === 'running') {
+                                                    statusClass = 'border-blue-900/50 bg-blue-900/10 text-blue-400 border-l-4 border-l-blue-500';
+                                                    icon = <div className="w-6 h-6 rounded-full border-2 border-blue-500 flex items-center justify-center text-xs font-bold text-blue-400 animate-pulse">{index + 1}</div>;
+                                                }
+
+                                                return (
+                                                    <div key={step.id} className={`p-3 rounded-lg border transition-all duration-500 flex items-center gap-4 ${statusClass}`}>
+                                                        {icon}
+                                                        <div className="flex-grow">
+                                                            <div className="flex justify-between items-center">
+                                                                <h4 className="font-bold text-sm">{step.action}</h4>
+                                                                <span className="text-[10px] uppercase tracking-wider opacity-70">{step.tool}</span>
+                                                            </div>
+                                                            {index < currentStepIndex && <p className="text-xs opacity-70 mt-1">{step.outputDescription}</p>}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* Artifacts & Submit Panel */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {/* Artifacts */}
+                                        <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4 min-h-[120px]">
+                                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                                <DatabaseIcon className="w-4 h-4" /> Generated Artifacts
+                                            </h4>
+                                            {artifacts.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    {artifacts.map((artifact, i) => (
+                                                        <div key={i} className="flex items-center justify-between p-2 bg-slate-950 rounded border border-slate-700">
+                                                            <span className="text-xs font-mono text-white truncate max-w-[150px]">{artifact.name}</span>
+                                                            <div className="flex gap-2">
+                                                                <button 
+                                                                    onClick={() => handleDownloadArtifact(artifact)}
+                                                                    className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded flex items-center gap-1 font-bold transition-colors"
+                                                                    title="Download"
+                                                                >
+                                                                    <DownloadIcon className="w-3 h-3" />
+                                                                </button>
+                                                                {/* Send to Big Data Button */}
+                                                                <button 
+                                                                    onClick={() => addLog(`[DATA] Sent ${artifact.name} to Big Data Studio pipeline.`, 'success')}
+                                                                    className="text-xs bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded flex items-center gap-1 font-bold transition-colors"
+                                                                    title="Send to Big Data Studio"
+                                                                >
+                                                                    <TableCellsIcon className="w-3 h-3" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-xs text-slate-600 italic">No artifacts generated yet.</p>
+                                            )}
+                                        </div>
+                                        
+                                        {/* Submission Panel */}
+                                        <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4 flex flex-col justify-between min-h-[120px]">
+                                             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2">
+                                                <PaperAirplaneIcon className="w-4 h-4" /> Next Actions
+                                            </h4>
+                                            {reportingManager && workflowStatus === 'completed' ? (
+                                                <div>
+                                                    <p className="text-xs text-slate-300 mb-2">Manager: <span className="text-white font-bold">{reportingManager.name}</span></p>
+                                                    <button 
+                                                        onClick={handleSubmitDeliverable}
+                                                        className="w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 rounded flex items-center justify-center gap-2 transition-colors"
+                                                    >
+                                                        Submit Deliverables
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <p className="text-xs text-slate-600 italic flex-grow flex items-center justify-center">Waiting for completion...</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right: Logs, Metrics & Chat */}
+                                <div className="w-1/3 flex flex-col gap-4">
+                                    {/* Live Metrics Chart (if training) */}
+                                    {trainingMetrics && (
+                                        <div className="bg-slate-900 rounded-xl border border-slate-800 p-4">
+                                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                                <ChartBarIcon className="w-4 h-4" /> Live Training Metrics
+                                            </h4>
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <div className="flex justify-between text-xs text-slate-300 mb-1">
+                                                        <span>Loss</span>
+                                                        <span>{trainingMetrics.loss.toFixed(4)}</span>
+                                                    </div>
+                                                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-red-500 transition-all duration-300" style={{ width: `${Math.min(100, trainingMetrics.loss * 20)}%` }}></div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className="flex justify-between text-xs text-slate-300 mb-1">
+                                                        <span>Accuracy</span>
+                                                        <span>{(trainingMetrics.accuracy * 100).toFixed(1)}%</span>
+                                                    </div>
+                                                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${trainingMetrics.accuracy * 100}%` }}></div>
+                                                    </div>
+                                                </div>
+                                                <p className="text-center text-xs text-slate-500 font-mono mt-1">Epoch {trainingMetrics.epoch}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Logs */}
+                                    <div className="flex-grow bg-black rounded-xl border border-slate-800 flex flex-col overflow-hidden min-h-[200px]">
+                                        <div className="bg-slate-900 p-2 border-b border-slate-800 flex justify-between items-center">
+                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-2">System Logs</span>
+                                            <div className="flex items-center gap-2">
+                                                <button onClick={handleDownloadLogs} className="text-slate-500 hover:text-white" title="Download Logs">
+                                                    <DownloadIcon className="w-3 h-3" />
+                                                </button>
+                                                <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                                            </div>
+                                        </div>
+                                        <div 
+                                            ref={logContainerRef}
+                                            className="flex-grow p-4 font-mono text-xs overflow-y-auto space-y-1"
+                                        >
+                                            {logs.map((log, i) => (
+                                                <div key={i} dangerouslySetInnerHTML={{__html: log}} />
+                                            ))}
+                                            <div className="animate-pulse text-green-500">_</div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Integrated Chat */}
+                                    <div className="h-1/3 min-h-[150px]">
+                                        <DashboardChat agent={agent} logs={logs} />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+    };
+
     const NavButton: React.FC<{ view: View, icon: any, label: string }> = ({ view, icon, label }) => (
         <button
             onClick={() => setActiveView(view)}
-            className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all ${
+            className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
                 activeView === view 
-                ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/20 font-bold' 
-                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                ? 'bg-purple-600/10 text-purple-400 border-r-2 border-purple-500' 
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
             }`}
+            title={label}
         >
             {icon}
-            <span className="text-sm">{label}</span>
+            <span className="hidden lg:block text-sm font-medium">{label}</span>
         </button>
     );
 
     return (
-        <div className="flex flex-col h-screen max-h-[900px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
+        <div className="flex h-screen bg-slate-950 overflow-hidden">
             <IntegrationsModal 
                 isOpen={isIntegrationModalOpen} 
-                onClose={() => setIsIntegrationModalOpen(false)}
+                onClose={() => setIsIntegrationModalOpen(false)} 
                 onConnect={handleConnectService}
                 connectedServices={connectedServices}
             />
 
             {/* Top Bar */}
-            <div className="bg-slate-900 p-4 border-b border-slate-800 flex justify-between items-center shrink-0">
-                <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold border-2 border-white shadow-lg shadow-purple-500/30">
-                        {agent.name.charAt(0)}
-                    </div>
-                    <div>
-                        <h2 className="text-white font-bold text-lg leading-none">{agent.name}</h2>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">{agent.role} | {agent.email}</p>
+            {/* NOTE: In a real layout, top bar might be separate, but here we integrate controls inside the main area or keep sidebar */}
+            
+            {/* Sidebar */}
+            <div className="w-16 lg:w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between">
+                <div className="flex flex-col h-full">
+                    <div className="p-4 flex items-center gap-3 border-b border-slate-800 shrink-0">
+                        <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center text-white font-bold">AI</div>
+                        <div className="hidden lg:block overflow-hidden">
+                            <span className="font-bold text-white block truncate">{agent.name}</span>
+                            <span className="text-[10px] text-slate-400 block truncate">{agent.role}</span>
                         </div>
                     </div>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                    {/* Continuous Mode Toggle */}
-                    <button 
-                        onClick={() => setIsContinuousMode(!isContinuousMode)}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-colors border ${isContinuousMode ? 'bg-blue-900/50 text-blue-300 border-blue-500' : 'bg-slate-800 text-slate-400 border-slate-600'}`}
-                        title="Restart workflow automatically upon completion"
-                    >
-                        <ClockIcon className="w-3 h-3" />
-                        24/7 Loop: {isContinuousMode ? 'ON' : 'OFF'}
-                    </button>
-
-                    <button onClick={onLogout} className="bg-red-500/10 text-red-400 px-3 py-2 rounded hover:bg-red-500/20 transition-colors" title="Logout">
-                        <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                    </button>
-                </div>
-            </div>
-
-            <div className="flex flex-grow overflow-hidden">
-                {/* Sidebar */}
-                <div className="w-64 bg-slate-900 border-r border-slate-800 p-4 flex flex-col shrink-0">
-                    <div className="space-y-2">
-                        <NavButton view="dashboard" icon={<RobotIcon className="w-5 h-5" />} label="Workstation Dashboard" />
-                        <NavButton view="team" icon={<UserGroupIcon className="w-5 h-5" />} label="Team & Hierarchy" />
-                        <NavButton view="ide" icon={<CodeBracketIcon className="w-5 h-5" />} label="Agentic IDE" />
-                        <NavButton view="mcp" icon={<CubeIcon className="w-5 h-5" />} label="MCP Server" />
-                        <NavButton view="bigdata" icon={<TableCellsIcon className="w-5 h-5" />} label="Big Data Studio" />
-                        <NavButton view="autopilot" icon={<PlayIcon className="w-5 h-5" />} label="Auto-Pilot Library" />
-                        <NavButton view="knowledge" icon={<DatabaseIcon className="w-5 h-5" />} label="Knowledge Base" />
-                        <NavButton view="settings" icon={<CogIcon className="w-5 h-5" />} label="Agent Settings" />
-                    </div>
-
-                    <div className="mt-auto pt-6 border-t border-slate-800">
-                        <h3 className="text-[10px] font-bold text-slate-500 uppercase mb-3 tracking-widest">Active Integrations</h3>
-                        <div className="space-y-2 mb-4 max-h-32 overflow-y-auto">
-                            {connectedServices.length === 0 && <p className="text-xs text-slate-600 italic">No tools connected.</p>}
-                            {connectedServices.map(s => (
-                                <div key={s} className="flex items-center gap-2 text-xs text-green-400 bg-green-900/10 px-2 py-1.5 rounded border border-green-900/30">
-                                    <LinkIcon className="w-3 h-3" /> {s}
-                                </div>
-                            ))}
-                        </div>
-                        <button 
-                            onClick={() => setIsIntegrationModalOpen(true)}
-                            className="w-full text-xs bg-slate-800 text-slate-300 px-2 py-2 rounded hover:bg-slate-700 border border-slate-600 flex items-center justify-center gap-1 transition-colors"
-                        >
-                            <PlusIcon className="w-3 h-3" /> Add Connection
+                    <nav className="flex-1 overflow-y-auto py-4 space-y-1">
+                        <NavButton view="dashboard" icon={<ChartBarIcon className="w-5 h-5 flex-shrink-0" />} label="Dashboard" />
+                        <NavButton view="team" icon={<UserGroupIcon className="w-5 h-5 flex-shrink-0" />} label="Team" />
+                        <NavButton view="autopilot" icon={<RobotIcon className="w-5 h-5 flex-shrink-0" />} label="Auto-Pilot" />
+                        <NavButton view="mcp" icon={<CubeIcon className="w-5 h-5 flex-shrink-0" />} label="MCP Server" />
+                        <NavButton view="knowledge" icon={<DatabaseIcon className="w-5 h-5 flex-shrink-0" />} label="Knowledge" />
+                        <NavButton view="bigdata" icon={<TableCellsIcon className="w-5 h-5 flex-shrink-0" />} label="Big Data" />
+                        <NavButton view="ide" icon={<CodeBracketIcon className="w-5 h-5 flex-shrink-0" />} label="Agent IDE" />
+                        <NavButton view="tuner" icon={<BeakerIcon className="w-5 h-5 flex-shrink-0" />} label="Tuner" />
+                        <NavButton view="collab" icon={<UsersIcon className="w-5 h-5 flex-shrink-0" />} label="Collab" />
+                        <NavButton view="settings" icon={<CogIcon className="w-5 h-5 flex-shrink-0" />} label="Settings" />
+                        {isAdmin && (
+                            <NavButton view="admin" icon={<WrenchScrewdriverIcon className="w-5 h-5 flex-shrink-0 text-red-400" />} label="Admin Console" />
+                        )}
+                    </nav>
+                    <div className="p-4 border-t border-slate-800 shrink-0">
+                        <button onClick={onLogout} className="w-full flex items-center gap-3 text-slate-400 hover:text-white transition-colors px-4 py-2">
+                            <ArrowRightOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
+                            <span className="hidden lg:block text-sm">Logout</span>
                         </button>
                     </div>
                 </div>
+            </div>
 
-                {/* Main Content Area */}
-                <div className="flex-grow bg-slate-950 relative overflow-hidden flex flex-col">
-                    {activeView === 'dashboard' && (
-                        <div className="flex flex-col h-full">
-                            <div className="flex-grow p-6 flex flex-col relative overflow-hidden">
-                                <div className="absolute inset-0 bg-grid-white/[0.02] pointer-events-none"></div>
-                                
-                                {workflowStatus === 'idle' ? (
-                                    <div className="flex flex-col items-center justify-center h-full text-center max-w-md mx-auto z-10 animate-fade-in-up">
-                                        <div className="w-24 h-24 bg-purple-900/20 rounded-full flex items-center justify-center mb-6 border border-purple-500/50 shadow-[0_0_30px_rgba(147,51,234,0.2)]">
-                                            <PlayIcon className="w-10 h-10 text-purple-400" />
-                                        </div>
-                                        <h1 className="text-2xl font-bold text-white mb-2">{activeWorkflowName}</h1>
-                                        <p className="text-slate-400 mb-8 text-sm">Workflow configured and ready. Initialize autonomous execution sequence to begin processing.</p>
-                                        
-                                        <button 
-                                            onClick={startWorkflow}
-                                            className="group relative inline-flex items-center justify-center px-8 py-3 font-bold text-white transition-all duration-200 bg-purple-600 rounded-lg hover:bg-purple-500 hover:shadow-lg hover:shadow-purple-500/40 hover:-translate-y-1"
-                                        >
-                                            <PlayIcon className="w-5 h-5 mr-2" />
-                                            Initialize Automation
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="w-full h-full flex gap-6">
-                                        {/* Left: Execution Status */}
-                                        <div className="flex-grow flex flex-col gap-4">
-                                            <div className="flex justify-between items-center">
-                                                <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                                                    {workflowStatus === 'running' || workflowStatus === 'initializing' ? (
-                                                        <span className="relative flex h-3 w-3">
-                                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                                          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                                                        </span>
-                                                    ) : (
-                                                        <span className="w-3 h-3 rounded-full bg-blue-500"></span>
-                                                    )}
-                                                    {workflowStatus === 'initializing' ? 'Booting System...' : workflowStatus === 'running' ? 'Executing Workflow...' : 'Task Complete'}
-                                                </h3>
-                                            </div>
-
-                                            <div className="flex-grow bg-slate-900/50 rounded-xl border border-slate-800 p-4 overflow-y-auto">
-                                                <div className="space-y-3">
-                                                    {workflowSteps.map((step, index) => {
-                                                        let statusClass = 'border-slate-800 bg-slate-900/30 text-slate-600';
-                                                        let icon = <div className="w-6 h-6 rounded-full border-2 border-slate-700 flex items-center justify-center text-xs font-mono">{index + 1}</div>;
-
-                                                        if (index < currentStepIndex || workflowStatus === 'completed') {
-                                                            statusClass = 'border-green-900/50 bg-green-900/10 text-green-400';
-                                                            icon = <CheckCircleIcon className="w-6 h-6 text-green-500" />;
-                                                        } else if (index === currentStepIndex && workflowStatus === 'running') {
-                                                            statusClass = 'border-blue-900/50 bg-blue-900/10 text-blue-400 border-l-4 border-l-blue-500';
-                                                            icon = <div className="w-6 h-6 rounded-full border-2 border-blue-500 flex items-center justify-center text-xs font-bold text-blue-400 animate-pulse">{index + 1}</div>;
-                                                        }
-
-                                                        return (
-                                                            <div key={step.id} className={`p-3 rounded-lg border transition-all duration-500 flex items-center gap-4 ${statusClass}`}>
-                                                                {icon}
-                                                                <div className="flex-grow">
-                                                                    <div className="flex justify-between items-center">
-                                                                        <h4 className="font-bold text-sm">{step.action}</h4>
-                                                                        <span className="text-[10px] uppercase tracking-wider opacity-70">{step.tool}</span>
-                                                                    </div>
-                                                                    {index < currentStepIndex && <p className="text-xs opacity-70 mt-1">{step.outputDescription}</p>}
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-
-                                            {/* Artifacts & Submit Panel */}
-                                            <div className="grid grid-cols-2 gap-4">
-                                                {/* Artifacts */}
-                                                <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4 min-h-[120px]">
-                                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                                        <DatabaseIcon className="w-4 h-4" /> Generated Artifacts
-                                                    </h4>
-                                                    {artifacts.length > 0 ? (
-                                                        <div className="space-y-2">
-                                                            {artifacts.map((artifact, i) => (
-                                                                <div key={i} className="flex flex-col gap-2 p-2 bg-slate-950 rounded border border-slate-700">
-                                                                    <span className="text-xs font-mono text-white truncate max-w-[150px]">{artifact.name}</span>
-                                                                    <div className="flex gap-2">
-                                                                        <button 
-                                                                            onClick={() => handleDownloadArtifact(artifact)}
-                                                                            className="text-[10px] bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded flex items-center gap-1 font-bold transition-colors flex-1 justify-center"
-                                                                        >
-                                                                            <DownloadIcon className="w-3 h-3" /> Save
-                                                                        </button>
-                                                                        <button 
-                                                                            onClick={() => handleSendToBigData(artifact.name)}
-                                                                            className="text-[10px] bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded flex items-center gap-1 font-bold transition-colors flex-1 justify-center"
-                                                                            title="Push to ETL Pipeline"
-                                                                        >
-                                                                            <ServerStackIcon className="w-3 h-3" /> Big Data
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    ) : (
-                                                        <p className="text-xs text-slate-600 italic">No artifacts generated yet.</p>
-                                                    )}
-                                                </div>
-                                                
-                                                {/* Submission Panel */}
-                                                <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4 flex flex-col justify-between min-h-[120px]">
-                                                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2">
-                                                        <PaperAirplaneIcon className="w-4 h-4" /> Next Actions
-                                                    </h4>
-                                                    {reportingManager && workflowStatus === 'completed' ? (
-                                                        <div>
-                                                            <p className="text-xs text-slate-300 mb-2">Manager: <span className="text-white font-bold">{reportingManager.name}</span></p>
-                                                            <button 
-                                                                onClick={handleSubmitDeliverable}
-                                                                className="w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 rounded flex items-center justify-center gap-2 transition-colors"
-                                                            >
-                                                                Submit Deliverables
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <p className="text-xs text-slate-600 italic flex-grow flex items-center justify-center">Waiting for completion...</p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Right: Logs, Metrics & Chat */}
-                                        <div className="w-1/3 flex flex-col gap-4">
-                                            {/* Live Metrics Chart (if training) */}
-                                            {trainingMetrics && (
-                                                <div className="bg-slate-900 rounded-xl border border-slate-800 p-4">
-                                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                                        <ChartBarIcon className="w-4 h-4" /> Live Training Metrics
-                                                    </h4>
-                                                    <div className="space-y-3">
-                                                        <div>
-                                                            <div className="flex justify-between text-xs text-slate-300 mb-1">
-                                                                <span>Loss</span>
-                                                                <span>{trainingMetrics.loss.toFixed(4)}</span>
-                                                            </div>
-                                                            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                                                                <div className="h-full bg-red-500 transition-all duration-300" style={{ width: `${Math.min(100, trainingMetrics.loss * 20)}%` }}></div>
-                                                            </div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="flex justify-between text-xs text-slate-300 mb-1">
-                                                                <span>Accuracy</span>
-                                                                <span>{(trainingMetrics.accuracy * 100).toFixed(1)}%</span>
-                                                            </div>
-                                                            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                                                                <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${trainingMetrics.accuracy * 100}%` }}></div>
-                                                            </div>
-                                                        </div>
-                                                        <p className="text-center text-xs text-slate-500 font-mono mt-1">Epoch {trainingMetrics.epoch}</p>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Logs */}
-                                            <div className="flex-grow bg-black rounded-xl border border-slate-800 flex flex-col overflow-hidden min-h-[200px]">
-                                                <div className="bg-slate-900 p-2 border-b border-slate-800 flex justify-between items-center">
-                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-2">System Logs</span>
-                                                    <div className="flex items-center gap-2">
-                                                        <button onClick={handleDownloadLogs} className="text-slate-500 hover:text-white" title="Download Logs">
-                                                            <DownloadIcon className="w-3 h-3" />
-                                                        </button>
-                                                        <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-                                                    </div>
-                                                </div>
-                                                <div 
-                                                    ref={logContainerRef}
-                                                    className="flex-grow p-4 font-mono text-xs overflow-y-auto space-y-1"
-                                                >
-                                                    {logs.map((log, i) => (
-                                                        <div key={i} dangerouslySetInnerHTML={{__html: log}} />
-                                                    ))}
-                                                    <div className="animate-pulse text-green-500">_</div>
-                                                </div>
-                                            </div>
-                                            
-                                            {/* Integrated Chat */}
-                                            <div className="h-1/3 min-h-[150px]">
-                                                <DashboardChat agent={agent} logs={logs} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {activeView === 'ide' && <AgentIDE />}
-                    {activeView === 'mcp' && <MCPServer />}
-                    {activeView === 'bigdata' && <BigDataTool />}
-                    {activeView === 'autopilot' && <AutoPilot onDeploy={handleDeployTemplate} />}
-                    {activeView === 'knowledge' && <KnowledgeBase />}
-                    {activeView === 'settings' && <AgentSettings />}
-                    {activeView === 'team' && <OrgChart activeAgentId={agent.id} />}
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col min-w-0">
+                <header className="bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center shrink-0">
+                    <h2 className="text-white font-bold capitalize flex items-center gap-2">
+                        {activeView === 'admin' && <WrenchScrewdriverIcon className="w-5 h-5 text-red-500" />}
+                        {activeView.replace('-', ' ')}
+                    </h2>
+                    <div className="flex gap-3 items-center">
+                         <button 
+                            onClick={() => setIsContinuousMode(!isContinuousMode)}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-colors border ${isContinuousMode ? 'bg-blue-900/50 text-blue-300 border-blue-500' : 'bg-slate-800 text-slate-400 border-slate-600'}`}
+                            title="Restart workflow automatically"
+                        >
+                            <ClockIcon className="w-3 h-3" />
+                            Loop: {isContinuousMode ? 'ON' : 'OFF'}
+                        </button>
+                        <div className="h-6 w-px bg-slate-700 mx-2"></div>
+                        <button 
+                            onClick={() => setIsIntegrationModalOpen(true)}
+                            className="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-sm font-bold border border-slate-700 hover:bg-slate-700 flex items-center gap-2"
+                        >
+                            <LinkIcon className="w-4 h-4" /> Integrations
+                        </button>
+                    </div>
+                </header>
+                <div className="flex-1 overflow-hidden relative">
+                    {renderView()}
                 </div>
+            </div>
+
+            {/* Chat Sidebar (Hidden on smaller screens) */}
+            <div className="w-80 bg-slate-900 border-l border-slate-800 hidden 2xl:flex flex-col shrink-0">
+                <DashboardChat agent={agent} logs={logs} />
             </div>
         </div>
     );
